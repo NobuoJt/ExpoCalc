@@ -265,6 +265,28 @@ const ExposureCalculator: React.FC = () => {
     }
   };
 
+  // EV値の簡潔な表示（表内用）
+  const formatEVWithDescription = (value: number) => {
+    const description = getEVDescription(value).split(' ')[0];
+    return `${value.toFixed(0)}(${description})`;
+  };
+
+  // シンプルなパラメータ値表示（一般表現を使用）
+  const formatSimpleValue = (param: keyof ExposureValues, value: number) => {
+    switch (param) {
+      case 'ev': {
+        const description = getEVDescription(value).split(' ')[0];
+        return `EV=${value.toFixed(0)}(${description})`;
+      }
+      case 'av':
+        return formatCommonFNumber(value);
+      case 'tv':
+        return formatCommonShutterSpeed(value);
+      case 'iso':
+        return formatCommonISO(value);
+    }
+  };
+
   const formatStrictValue = (param: keyof ExposureValues, value: number) => {
     switch (param) {
       case 'ev':
@@ -346,6 +368,7 @@ const ExposureCalculator: React.FC = () => {
   // 一般表現での表示を取得
   const getCommonValueDisplay = (param: keyof ExposureValues, value: number): string => {
     switch (param) {
+      case 'ev': return formatEVWithDescription(value);
       case 'av': return formatCommonFNumber(value);
       case 'tv': return formatCommonShutterSpeed(value);
       case 'iso': return formatCommonISO(value);
@@ -798,9 +821,7 @@ const ExposureCalculator: React.FC = () => {
                     </h3>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
                       <h4>
-                        固定: {getParamLabel(selectedParam1)}={formatValue(selectedParam1, values[selectedParam1])}, {getParamLabel(selectedParam2)}={formatValue(selectedParam2, values[selectedParam2])}
-
-                      
+                        固定: {formatSimpleValue(selectedParam1, values[selectedParam1])}, {formatSimpleValue(selectedParam2, values[selectedParam2])}
                       </h4>
                       <button 
                         className="toggle-detailed-values"
@@ -821,11 +842,11 @@ const ExposureCalculator: React.FC = () => {
                         <tbody>
                           {combinations.slice(0, 50).map((combination, index) => (
                             <tr key={index}>
-                              <td>{formatValue(varParam1, combination[varParam1])}</td>
-                              <td>{formatValue(varParam2, combination[varParam2])}</td>
+                              <td>{getCommonValueDisplay(varParam1, combination[varParam1])}</td>
+                              <td>{getCommonValueDisplay(varParam2, combination[varParam2])}</td>
                               {showUnifiedValues && (
                                 <td className="unified-value">
-                                  EV={(combination.av + combination.tv - combination.iso).toFixed(2)}
+                                  {formatEVWithDescription(combination.av + combination.tv - combination.iso)}
                                 </td>
                               )}
                             </tr>
