@@ -157,7 +157,7 @@
 
 .value-input-row {
   display: grid;
-  grid-template-columns: 100px 80px 1fr 240px;
+  grid-template-columns: 100px 120px 80px 80px 240px;
   align-items: center;
   gap: 10px;
 }
@@ -182,13 +182,7 @@
   color: #999;
 }
 
-.formatted-display {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.formatted-value {
+.strict-value {
   background: #fff;
   padding: 6px 8px;
   border: 1px solid #ddd;
@@ -197,17 +191,30 @@
   font-size: 12px;
   text-align: center;
   white-space: nowrap;
+  color: #666;
+}
+
+.ev-brightness {
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #888;
+  font-size: 11px;
+  font-weight: normal;
 }
 
 .common-value {
   background: #f0f8f0;
-  padding: 4px 6px;
+  padding: 6px;
   border: 1px solid #d0e0d0;
   border-radius: 3px;
-  font-family: monospace;
-  font-size: 11px;
+  font-size: 12px;
   text-align: center;
   color: #555;
+  width: 100%;
+}
+
+.common-value:disabled {
+  background: #f5f5f5;
+  color: #999;
 }
 
 .step-buttons {
@@ -318,6 +325,28 @@
   margin-bottom: 20px;
 }
 
+.calculate-button {
+  background: #007acc;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  margin: 5px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.calculate-button:hover {
+  background: #005fa3;
+}
+
+.calculate-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
 .calculation-buttons button {
   background: #007acc;
   color: white;
@@ -338,6 +367,32 @@
 .calculation-buttons button:disabled {
   background: #ccc;
   cursor: not-allowed;
+}
+
+.single-result {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.result-display {
+  margin-top: 15px;
+  padding: 15px;
+  background: #e8f5e8;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+.table-section {
+  background: white;
+}
+
+.matrix-info {
+  margin-bottom: 15px;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #666;
 }
 
 /* テーブル */
@@ -590,7 +645,7 @@
   }
   
   .value-input-row {
-    grid-template-columns: 80px 60px 1fr 200px;
+    grid-template-columns: 80px 100px 60px 60px 200px;
     gap: 6px;
   }
   
@@ -624,16 +679,11 @@
     gap: 8px;
   }
   
-  .formatted-display {
-    flex-direction: row;
-    gap: 8px;
-  }
-  
   .step-buttons {
     justify-content: center;
   }
   
-  .formatted-value,
+  .strict-value,
   .common-value {
     font-size: 11px;
   }

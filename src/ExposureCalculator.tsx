@@ -326,8 +326,8 @@ const ExposureCalculator: React.FC = () => {
       <h1>露出計算機</h1>
       
       <div className="main-content">
-        {/* 左のカラム：計算結果・表示エリア */}
-        <div className="results-column">
+        {/* 左のカラム：コントロール */}
+        <div className="controls-column">
           {/* モード選択 */}
           <div className="section mode-selector">
             <h2>計算モード</h2>
@@ -338,7 +338,7 @@ const ExposureCalculator: React.FC = () => {
                 checked={mode === 'single'}
                 onChange={(e) => setMode(e.target.value as CalculationMode)}
               />
-              単一計算 (3入力 → 1出力)
+              3入力 → 1出力
             </label>
             <label>
               <input
@@ -369,184 +369,6 @@ const ExposureCalculator: React.FC = () => {
             </label>
           </div>
 
-          {/* 計算実行・結果表示 */}
-          {mode === 'single' && (
-            <div className="section">
-              <h2>単一計算</h2>
-              <div className="calculation-buttons">
-                <button onClick={() => performCalculation('ev')}>EV を計算</button>
-                <button onClick={() => performCalculation('av')}>絞り を計算</button>
-                <button onClick={() => performCalculation('tv')}>シャッター速度 を計算</button>
-                <button onClick={() => performCalculation('iso')}>ISO感度 を計算</button>
-              </div>
-            </div>
-          )}
-
-          {/* 表示エリア */}
-          {mode === 'table1D' && (
-            <div className="section">
-              <h2>1次元表</h2>
-              <div className="table-container">
-                <div className="table-scroll">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>{getParamLabel(selectedParam1)}</th>
-                        <th>{getParamLabel(selectedParam2)}</th>
-                        {Object.keys(values).filter(k => k !== selectedParam1 && k !== selectedParam2).map(param => (
-                          <th key={param}>{getParamLabel(param as keyof ExposureValues)}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {generate1DTable().slice(0, 50).map((row, index) => (
-                        <tr key={index}>
-                          <td>{formatValue(selectedParam1, row.param1)}</td>
-                          <td>{formatValue(selectedParam2, row.param2)}</td>
-                          {Object.keys(values).filter(k => k !== selectedParam1 && k !== selectedParam2).map(param => (
-                            <td key={param}>
-                              {row.results[param as keyof ExposureValues] !== undefined
-                                ? formatValue(param as keyof ExposureValues, row.results[param as keyof ExposureValues]!)
-                                : '-'
-                              }
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {mode === 'table2D' && (
-            <div className="section">
-              <h2>2次元表</h2>
-              <div className="table-container">
-                <div className="table-scroll">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>{getParamLabel(selectedParam1)}</th>
-                        {Object.keys(values).filter(k => k !== selectedParam1).map(param => (
-                          <th key={param}>{getParamLabel(param as keyof ExposureValues)}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {generate2DTable().slice(0, 30).map((row, index) => (
-                        <tr key={index}>
-                          <td>{formatValue(selectedParam1, row.fixedValue)}</td>
-                          {Object.keys(values).filter(k => k !== selectedParam1).map(param => (
-                            <td key={param}>
-                              {row.results[param as keyof ExposureValues] !== undefined
-                                ? formatValue(param as keyof ExposureValues, row.results[param as keyof ExposureValues]!)
-                                : '-'
-                              }
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {mode === 'matrix2D' && (
-            <div className="section">
-              <h2>真の2次元表（マトリックス形式）</h2>
-              <div className="table-container">
-                <div className="table-scroll">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>{getParamLabel(generate2DMatrixTable().rowParam)} / {getParamLabel(generate2DMatrixTable().colParam)}</th>
-                        {generate2DMatrixTable().colSteps.map((step, index) => (
-                          <th key={index}>{formatValue(generate2DMatrixTable().colParam, step)}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {generate2DMatrixTable().matrix.map((row, rowIndex) => (
-                        <tr key={rowIndex}>
-                          <td>{formatValue(generate2DMatrixTable().rowParam, generate2DMatrixTable().rowSteps[rowIndex])}</td>
-                          {row.map((cell, colIndex) => (
-                            <td key={colIndex} className={cell.isValid ? '' : 'invalid'}>
-                              {cell.value !== null
-                                ? formatValue(generate2DMatrixTable().resultParam, cell.value)
-                                : '計算不可'
-                              }
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* EV-明るさ目安表 */}
-          <div className="section ev-reference-table">
-            <button 
-              className="ev-reference-toggle"
-              onClick={() => setShowEVTable(!showEVTable)}
-            >
-              EV-明るさ目安表 {showEVTable ? '▼' : '▶'}
-            </button>
-            {showEVTable && (
-              <div className="ev-reference-content">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>EV値</th>
-                      <th>明るさの目安</th>
-                      <th>照度</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[
-                      [16, "真夏のビーチ", "164kLux"],
-                      [15, "快晴", "81.9kLux"],
-                      [14, "晴れ", "41.0kLux"],
-                      [13, "薄日", "20.5kLux"],
-                      [12, "曇り", "10.2kLux"],
-                      [11, "雨曇り", "5.12kLux"],
-                      [10, "陳列棚", "2.56kLux"],
-                      [9, "明るい部屋", "1.28kLux"],
-                      [8, "エレベータ", "640Lux"],
-                      [7, "体育館", "320Lux"],
-                      [6, "廊下", "160Lux"],
-                      [5, "休憩室", "80Lux"],
-                      [4, "暗い室内", "40Lux"],
-                      [3, "観客席", "20Lux"],
-                      [2, "映画館", "10Lux"],
-                      [1, "日没後", "5Lux"],
-                      [0, "薄明り", "2.5Lux"],
-                      [-1, "深夜屋内", "1.25Lux"],
-                      [-2, "月夜", "0.63Lux"],
-                      [-3, "おぼろ月夜", "0.31Lux"],
-                      [-4, "星空", "0.16Lux"]
-                    ].map(([ev, desc, lux]) => (
-                      <tr key={ev}>
-                        <td>EV {ev}</td>
-                        <td>{desc}</td>
-                        <td>{lux}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* 右のカラム：露出パラメータ */}
-        <div className="controls-column">
           {/* 露出パラメータ */}
           <div className="section value-inputs">
             <h2>露出パラメータ</h2>
@@ -654,19 +476,29 @@ const ExposureCalculator: React.FC = () => {
                     <label className="param-label">{getParamLabel(param as keyof ExposureValues)}:</label>
                     <input
                       type="text"
-                      value={value.toFixed(2)}
+                      value={param === 'ev' ? getEVDescription(value).split(' ')[0] : getCommonValueDisplay(param as keyof ExposureValues, value)}
                       onChange={(e) => handleValueChange(param as keyof ExposureValues, e.target.value)}
                       disabled={!isInputParam && mode !== 'single'}
                       className="value-input"
+                      placeholder={param === 'ev' ? 'EV値' : param === 'av' ? 'f/2.8' : param === 'tv' ? '1/125' : 'ISO400'}
                     />
-                    <div className="formatted-display">
-                      <div className="formatted-value">
-                        {formatValue(param as keyof ExposureValues, value)}
-                      </div>
-                      {param !== 'ev' && (
-                        <div className="common-value">
-                          {getCommonValueDisplay(param as keyof ExposureValues, value)}
-                        </div>
+                    <input
+                      type="number"
+                      value={value.toFixed(3)}
+                      onChange={(e) => {
+                        const newValue = parseFloat(e.target.value);
+                        if (!isNaN(newValue)) {
+                          setValues(prev => ({ ...prev, [param]: newValue }));
+                        }
+                      }}
+                      step={0.001}
+                      disabled={!isInputParam && mode !== 'single'}
+                      className="common-value"
+                    />
+                    <div className="strict-value">
+                      {formatValue(param as keyof ExposureValues, value)}
+                      {param === 'ev' && (
+                        <span className="ev-brightness"> - {getEVDescription(value).split(' ').slice(1).join(' ')}</span>
                       )}
                     </div>
                     <div className="step-buttons">
@@ -702,11 +534,6 @@ const ExposureCalculator: React.FC = () => {
                       >+1</button>
                     </div>
                   </div>
-                  {param === 'ev' && (
-                    <div className="ev-description">
-                      {getEVDescription(value)}
-                    </div>
-                  )}
                   {inputWarnings[param as keyof ExposureValues] && (
                     <div className="input-warning">
                       {inputWarnings[param as keyof ExposureValues]}
@@ -774,6 +601,190 @@ const ExposureCalculator: React.FC = () => {
                 </div>
               </div>
             )}
+          </div>
+
+          {/* EV-明るさ目安表 */}
+          <div className="section ev-reference-table">
+            <button 
+              className="ev-reference-toggle"
+              onClick={() => setShowEVTable(!showEVTable)}
+            >
+              EV-明るさ目安表 {showEVTable ? '▼' : '▶'}
+            </button>
+            {showEVTable && (
+              <div className="ev-reference-content">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>EV値</th>
+                      <th>明るさの目安</th>
+                      <th>照度</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      [16, "真夏のビーチ", "164kLux"],
+                      [15, "快晴", "81.9kLux"],
+                      [14, "晴れ", "41.0kLux"],
+                      [13, "薄日", "20.5kLux"],
+                      [12, "曇り", "10.2kLux"],
+                      [11, "雨曇り", "5.12kLux"],
+                      [10, "陳列棚", "2.56kLux"],
+                      [9, "明るい部屋", "1.28kLux"],
+                      [8, "エレベータ", "640Lux"],
+                      [7, "体育館", "320Lux"],
+                      [6, "廊下", "160Lux"],
+                      [5, "休憩室", "80Lux"],
+                      [4, "暗い室内", "40Lux"],
+                      [3, "観客席", "20Lux"],
+                      [2, "映画館", "10Lux"],
+                      [1, "日没後", "5Lux"],
+                      [0, "薄明り", "2.5Lux"],
+                      [-1, "深夜屋内", "1.25Lux"],
+                      [-2, "月夜", "0.63Lux"],
+                      [-3, "おぼろ月夜", "0.31Lux"],
+                      [-4, "星空", "0.16Lux"]
+                    ].map(([ev, desc, lux]) => (
+                      <tr key={ev}>
+                        <td>EV {ev}</td>
+                        <td>{desc}</td>
+                        <td>{lux}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 右のカラム：計算結果・表示エリア */}
+        <div className="results-column">
+          <div className="section table-section">
+            <h2>計算結果</h2>
+            
+            {mode === 'single' && (
+              <div className="single-result">
+                <button 
+                  className="calculate-button"
+                  onClick={() => performCalculation(calculatedParam)}
+                >
+                  {getParamLabel(calculatedParam)}を計算
+                </button>
+                <div className="result-display">
+                  <strong>{getParamLabel(calculatedParam)}: {formatValue(calculatedParam, values[calculatedParam])}</strong>
+                </div>
+              </div>
+            )}
+
+            {mode === 'table1D' && (
+              <div className="table-1d">
+                <h3>1次元表</h3>
+                <div className="table-container">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>{getParamLabel(selectedParam1)}</th>
+                        <th>{getParamLabel(selectedParam2)}</th>
+                        {Object.keys(values).filter(key => key !== selectedParam1 && key !== selectedParam2).map(param => (
+                          <th key={param}>{getParamLabel(param as keyof ExposureValues)}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {generate1DTable().slice(0, 50).map((row, index) => (
+                        <tr key={index}>
+                          <td>{formatValue(selectedParam1, row.param1)}</td>
+                          <td>{formatValue(selectedParam2, row.param2)}</td>
+                          {Object.keys(values).filter(key => key !== selectedParam1 && key !== selectedParam2).map(param => (
+                            <td key={param}>
+                              {row.results[param as keyof ExposureValues] !== undefined 
+                                ? formatValue(param as keyof ExposureValues, row.results[param as keyof ExposureValues]!)
+                                : 'N/A'}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {mode === 'table2D' && (
+              <div className="table-2d">
+                <h3>2次元表 (固定: {formatValue(selectedParam1, values[selectedParam1])})</h3>
+                <div className="table-container">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>{getParamLabel(selectedParam1)}</th>
+                        {Object.keys(values).filter(key => key !== selectedParam1).map(param => (
+                          <th key={param}>{getParamLabel(param as keyof ExposureValues)}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {generate2DTable().slice(0, 30).map((row, index) => (
+                        <tr key={index}>
+                          <td>{formatValue(selectedParam1, row.fixedValue)}</td>
+                          {Object.keys(values).filter(key => key !== selectedParam1).map(param => (
+                            <td key={param}>
+                              {row.results[param as keyof ExposureValues] !== undefined 
+                                ? formatValue(param as keyof ExposureValues, row.results[param as keyof ExposureValues]!)
+                                : 'N/A'}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {mode === 'matrix2D' && (() => {
+              const matrixData = generate2DMatrixTable();
+              return (
+                <div className="table-matrix">
+                  <h3>マトリックス表</h3>
+                  <div className="matrix-info">
+                    固定: {formatValue(matrixData.fixedParam, matrixData.fixedValue)} | 
+                    行: {getParamLabel(matrixData.rowParam)} | 
+                    列: {getParamLabel(matrixData.colParam)} | 
+                    結果: {getParamLabel(matrixData.resultParam)}
+                  </div>
+                  <div className="table-container">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>{getParamLabel(matrixData.rowParam)} \ {getParamLabel(matrixData.colParam)}</th>
+                          {matrixData.colSteps.map((colValue, index) => (
+                            <th key={index}>{formatValue(matrixData.colParam, colValue)}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {matrixData.matrix.map((row, rowIndex) => (
+                          <tr key={rowIndex}>
+                            <td className="row-header">
+                              {formatValue(matrixData.rowParam, matrixData.rowSteps[rowIndex])}
+                            </td>
+                            {row.map((cell, colIndex) => (
+                              <td key={colIndex} className={cell.isValid ? '' : 'invalid-cell'}>
+                                {cell.isValid && cell.value !== null 
+                                  ? formatValue(matrixData.resultParam, cell.value)
+                                  : 'N/A'}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
       </div>
