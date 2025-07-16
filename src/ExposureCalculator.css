@@ -244,8 +244,9 @@
 }
 
 .value-input {
-  width: 100%;
-  padding: 6px;
+  width: calc(100% - 6px); /* 24pxはpaddingとborderの合計 */
+  padding-top: 6px;
+  padding-bottom: 6px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 14px;
@@ -704,7 +705,7 @@
 
 /* 計算結果表示 */
 .output-display {
-  width: 100%;
+  width: calc(100% - 6px);
   padding: 0px;
   border: 2px solid #4caf50;
   border-radius: 4px;
