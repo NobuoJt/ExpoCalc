@@ -25,9 +25,9 @@ const ExposureCalculator: React.FC = () => {
   const [mode, setMode] = useState<CalculationMode>('single');
   const [values, setValues] = useState<ExposureValues>({
     ev: 12,
-    av: 5.6,
-    tv: 6,
-    iso: 2
+    av: 5,
+    tv: 7,
+    iso: 0
   });
   
   const [fixedParams, setFixedParams] = useState<Record<keyof ExposureValues, boolean>>({
@@ -100,7 +100,7 @@ const ExposureCalculator: React.FC = () => {
       
       // 一般表現での警告チェック
       if (!isNearCommonValue(param, newValue)) {
-        warning = 'この値は一般的なカメラ設定値ではありません';
+        warning = `この値は一般的なカメラ設定値ではありません(param: ${param}, value: ${newValue})`;
       }
     }
 
@@ -288,7 +288,21 @@ const ExposureCalculator: React.FC = () => {
     const range = ranges[param];
     if (newValue < range.min || newValue > range.max) return;
     
-    setValues(prev => ({ ...prev, [param]: newValue }));
+    const newValues = { ...values, [param]: newValue };
+    setValues(newValues);
+    
+    // 単一計算モードの場合はリアルタイム計算
+    if (mode === 'single' && param !== calculatedParam) {
+      try {
+        const knownValues: Partial<ExposureValues> = { ...newValues };
+        delete knownValues[calculatedParam];
+        
+        const result = calculateMissingValue(knownValues, calculatedParam);
+        setValues(prev => ({ ...prev, [calculatedParam]: result }));
+      } catch (error) {
+        console.error('ステップ調整時のリアルタイム計算エラー:', error);
+      }
+    }
   };
 
   // ステップボタンが無効かどうかチェック
@@ -393,48 +407,7 @@ const ExposureCalculator: React.FC = () => {
             {mode === 'single' && (
               <div className="param-selection single-calc">
                 <h3>計算対象</h3>
-                <div className="radio-group-horizontal">
-                  <label>
-                    <input 
-                      type="radio" 
-                      name="targetParam" 
-                      value="ev" 
-                      checked={calculatedParam === 'ev'}
-                      onChange={(e) => setCalculatedParam(e.target.value as keyof ExposureValues)}
-                    />
-                    EV
-                  </label>
-                  <label>
-                    <input 
-                      type="radio" 
-                      name="targetParam" 
-                      value="av" 
-                      checked={calculatedParam === 'av'}
-                      onChange={(e) => setCalculatedParam(e.target.value as keyof ExposureValues)}
-                    />
-                    絞り
-                  </label>
-                  <label>
-                    <input 
-                      type="radio" 
-                      name="targetParam" 
-                      value="tv" 
-                      checked={calculatedParam === 'tv'}
-                      onChange={(e) => setCalculatedParam(e.target.value as keyof ExposureValues)}
-                    />
-                    SS
-                  </label>
-                  <label>
-                    <input 
-                      type="radio" 
-                      name="targetParam" 
-                      value="iso" 
-                      checked={calculatedParam === 'iso'}
-                      onChange={(e) => setCalculatedParam(e.target.value as keyof ExposureValues)}
-                    />
-                    ISO
-                  </label>
-                </div>
+                <p className="click-instruction">パラメータ行をクリックして計算対象を選択してください</p>
               </div>
             )}
 
@@ -490,15 +463,25 @@ const ExposureCalculator: React.FC = () => {
               
               const isOutputParam = mode === 'single' && param === calculatedParam;
               
+              const handleRowClick = () => {
+                if (mode === 'single') {
+                  setCalculatedParam(param as keyof ExposureValues);
+                }
+              };
+              
               return (
-                <div key={param} className={`parameter-row ${isOutputParam ? 'output-param' : ''}`}>
+                <div 
+                  key={param} 
+                  className={`parameter-row ${isOutputParam ? 'output-param' : ''} ${mode === 'single' ? 'clickable' : ''}`}
+                  onClick={handleRowClick}
+                >
                   <div className="value-input-row">
                     <label className="param-label">{getParamLabel(param as keyof ExposureValues)}:</label>
                     <input
                       type="text"
                       value={param === 'ev' ? getEVDescription(value).split(' ')[0] : getCommonValueDisplay(param as keyof ExposureValues, value)}
                       onChange={(e) => handleValueChange(param as keyof ExposureValues, e.target.value)}
-                      disabled={!isInputParam && mode !== 'single'}
+                      disabled={isOutputParam || (!isInputParam && mode !== 'single')}
                       className="value-input"
                       placeholder={param === 'ev' ? 'EV値' : param === 'av' ? 'f/2.8' : param === 'tv' ? '1/125' : 'ISO400'}
                     />
@@ -508,11 +491,25 @@ const ExposureCalculator: React.FC = () => {
                       onChange={(e) => {
                         const newValue = parseFloat(e.target.value);
                         if (!isNaN(newValue)) {
-                          setValues(prev => ({ ...prev, [param]: newValue }));
+                          const newValues = { ...values, [param]: newValue };
+                          setValues(newValues);
+                          
+                          // 単一計算モードでリアルタイム計算
+                          if (mode === 'single' && param !== calculatedParam) {
+                            try {
+                              const knownValues: Partial<ExposureValues> = { ...newValues };
+                              delete knownValues[calculatedParam];
+                              
+                              const result = calculateMissingValue(knownValues, calculatedParam);
+                              setValues(prev => ({ ...prev, [calculatedParam]: result }));
+                            } catch (error) {
+                              console.error('数値入力時のリアルタイム計算エラー:', error);
+                            }
+                          }
                         }
                       }}
                       step={0.001}
-                      disabled={!isInputParam && mode !== 'single'}
+                      disabled={isOutputParam || (!isInputParam && mode !== 'single')}
                       className="common-value"
                     />
                     <div className="strict-value">
@@ -521,34 +518,34 @@ const ExposureCalculator: React.FC = () => {
                     </div>
                     <div className="step-buttons">
                       <button 
-                        className={`step-button minus full-stop ${isStepDisabled(param as keyof ExposureValues, -1) ? 'disabled' : ''}`}
+                        className={`step-button minus full-stop ${isStepDisabled(param as keyof ExposureValues, -1) || isOutputParam ? 'disabled' : ''}`}
                         onClick={() => adjustValue(param as keyof ExposureValues, -1)}
-                        disabled={isStepDisabled(param as keyof ExposureValues, -1)}
+                        disabled={isStepDisabled(param as keyof ExposureValues, -1) || isOutputParam}
                       >-1</button>
                       <button 
-                        className={`step-button minus ${isStepDisabled(param as keyof ExposureValues, -0.5) ? 'disabled' : ''}`}
+                        className={`step-button minus ${isStepDisabled(param as keyof ExposureValues, -0.5) || isOutputParam ? 'disabled' : ''}`}
                         onClick={() => adjustValue(param as keyof ExposureValues, -0.5)}
-                        disabled={isStepDisabled(param as keyof ExposureValues, -0.5)}
+                        disabled={isStepDisabled(param as keyof ExposureValues, -0.5) || isOutputParam}
                       >-½</button>
                       <button 
-                        className={`step-button minus ${isStepDisabled(param as keyof ExposureValues, -1/3) ? 'disabled' : ''}`}
+                        className={`step-button minus ${isStepDisabled(param as keyof ExposureValues, -1/3) || isOutputParam ? 'disabled' : ''}`}
                         onClick={() => adjustValue(param as keyof ExposureValues, -1/3)}
-                        disabled={isStepDisabled(param as keyof ExposureValues, -1/3)}
+                        disabled={isStepDisabled(param as keyof ExposureValues, -1/3) || isOutputParam}
                       >-⅓</button>
                       <button 
-                        className={`step-button plus ${isStepDisabled(param as keyof ExposureValues, 1/3) ? 'disabled' : ''}`}
+                        className={`step-button plus ${isStepDisabled(param as keyof ExposureValues, 1/3) || isOutputParam ? 'disabled' : ''}`}
                         onClick={() => adjustValue(param as keyof ExposureValues, 1/3)}
-                        disabled={isStepDisabled(param as keyof ExposureValues, 1/3)}
+                        disabled={isStepDisabled(param as keyof ExposureValues, 1/3) || isOutputParam}
                       >+⅓</button>
                       <button 
-                        className={`step-button plus ${isStepDisabled(param as keyof ExposureValues, 0.5) ? 'disabled' : ''}`}
+                        className={`step-button plus ${isStepDisabled(param as keyof ExposureValues, 0.5) || isOutputParam ? 'disabled' : ''}`}
                         onClick={() => adjustValue(param as keyof ExposureValues, 0.5)}
-                        disabled={isStepDisabled(param as keyof ExposureValues, 0.5)}
+                        disabled={isStepDisabled(param as keyof ExposureValues, 0.5) || isOutputParam}
                       >+½</button>
                       <button 
-                        className={`step-button plus full-stop ${isStepDisabled(param as keyof ExposureValues, 1) ? 'disabled' : ''}`}
+                        className={`step-button plus full-stop ${isStepDisabled(param as keyof ExposureValues, 1) || isOutputParam ? 'disabled' : ''}`}
                         onClick={() => adjustValue(param as keyof ExposureValues, 1)}
-                        disabled={isStepDisabled(param as keyof ExposureValues, 1)}
+                        disabled={isStepDisabled(param as keyof ExposureValues, 1) || isOutputParam}
                       >+1</button>
                     </div>
                   </div>
