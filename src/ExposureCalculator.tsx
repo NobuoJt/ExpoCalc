@@ -53,6 +53,17 @@ const ExposureCalculator: React.FC = () => {
 
   const [selectedParam1, setSelectedParam1] = useState<keyof ExposureValues>('av');
   const [selectedParam2, setSelectedParam2] = useState<keyof ExposureValues>('tv');
+
+  // パラメータ1が変更された時、パラメータ2が重複しないようにする
+  useEffect(() => {
+    if (selectedParam1 === selectedParam2) {
+      const allParams: (keyof ExposureValues)[] = ['ev', 'av', 'tv', 'iso'];
+      const availableParams = allParams.filter(param => param !== selectedParam1);
+      if (availableParams.length > 0) {
+        setSelectedParam2(availableParams[0]);
+      }
+    }
+  }, [selectedParam1, selectedParam2]);
   const [calculatedParam, setCalculatedParam] = useState<keyof ExposureValues>('ev');
   const [showEVTable, setShowEVTable] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -441,10 +452,10 @@ const ExposureCalculator: React.FC = () => {
                 <label>
                   パラメータ2:
                   <select value={selectedParam2} onChange={(e) => setSelectedParam2(e.target.value as keyof ExposureValues)}>
-                    <option value="ev">EV (露出値)</option>
-                    <option value="av">AV (絞り値)</option>
-                    <option value="tv">TV (シャッター速度)</option>
-                    <option value="iso">ISO (感度)</option>
+                    <option value="ev" disabled={selectedParam1 === 'ev'}>EV (露出値)</option>
+                    <option value="av" disabled={selectedParam1 === 'av'}>AV (絞り値)</option>
+                    <option value="tv" disabled={selectedParam1 === 'tv'}>TV (シャッター速度)</option>
+                    <option value="iso" disabled={selectedParam1 === 'iso'}>ISO (感度)</option>
                   </select>
                 </label>
               </div>
