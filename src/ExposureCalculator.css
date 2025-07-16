@@ -14,16 +14,16 @@
 /* 2カラムレイアウト */
 .main-content {
   display: grid;
-  grid-template-columns: 1fr 400px;
+  grid-template-columns: 1fr 450px;
   gap: 30px;
   align-items: start;
 }
 
-.controls-column {
+.results-column {
   min-width: 0; /* グリッドアイテムのオーバーフロー対応 */
 }
 
-.params-column {
+.controls-column {
   position: sticky;
   top: 20px;
 }
@@ -110,21 +110,65 @@
   background: #f1f8e9;
 }
 
-.value-input-row {
-  display: grid;
-  grid-template-columns: 60px 60px 120px 1fr;
-  align-items: center;
-  margin-bottom: 12px;
-  gap: 8px;
+/* パラメータ選択エリア */
+.param-selection {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #e8f5e8;
+  border-radius: 6px;
 }
 
-.value-input-row label {
+.param-selection h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #555;
+}
+
+.param-selection label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.param-selection input[type="radio"] {
+  margin-right: 8px;
+}
+
+.param-selection select {
+  margin-left: 10px;
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+}
+
+.param-note {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
+}
+
+/* パラメータ行 */
+.parameter-row {
+  margin-bottom: 15px;
+}
+
+.value-input-row {
+  display: grid;
+  grid-template-columns: 100px 80px 1fr 240px;
+  align-items: center;
+  gap: 10px;
+}
+
+.param-label {
   font-weight: 500;
   font-size: 14px;
   text-align: left;
 }
 
-.value-input-row input[type="number"] {
+.value-input {
   width: 100%;
   padding: 6px;
   border: 1px solid #ddd;
@@ -133,9 +177,15 @@
   text-align: center;
 }
 
-.value-input-row input[type="number"]:disabled {
+.value-input:disabled {
   background: #f5f5f5;
   color: #999;
+}
+
+.formatted-display {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .formatted-value {
@@ -149,12 +199,23 @@
   white-space: nowrap;
 }
 
+.common-value {
+  background: #f0f8f0;
+  padding: 4px 6px;
+  border: 1px solid #d0e0d0;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 11px;
+  text-align: center;
+  color: #555;
+}
+
 .step-buttons {
   display: flex;
   gap: 2px;
   flex-wrap: wrap;
   justify-content: flex-end;
-  min-width: 200px;
+  align-items: center;
 }
 
 .step-button {
@@ -165,15 +226,16 @@
   cursor: pointer;
   transition: all 0.2s;
   border: 1px solid;
-  min-width: 28px;
+  min-width: 32px;
   text-align: center;
+  background: white;
 }
 
 /* マイナスボタン（赤系） */
 .step-button.minus {
-  background: #ffebee;
   border-color: #f44336;
   color: #c62828;
+  background: #ffebee;
 }
 
 .step-button.minus:hover:not(:disabled) {
@@ -183,6 +245,7 @@
 .step-button.minus.full-stop {
   background: #f44336;
   color: white;
+  font-weight: bold;
 }
 
 .step-button.minus.full-stop:hover:not(:disabled) {
@@ -191,9 +254,9 @@
 
 /* プラスボタン（青系） */
 .step-button.plus {
-  background: #e3f2fd;
   border-color: #2196f3;
   color: #1565c0;
+  background: #e3f2fd;
 }
 
 .step-button.plus:hover:not(:disabled) {
@@ -203,6 +266,7 @@
 .step-button.plus.full-stop {
   background: #2196f3;
   color: white;
+  font-weight: bold;
 }
 
 .step-button.plus.full-stop:hover:not(:disabled) {
@@ -217,14 +281,24 @@
 }
 
 .ev-description {
-  grid-column: 2 / -1;
-  margin-top: 5px;
+  margin-top: 8px;
   padding: 8px;
   background: #fff3cd;
   border: 1px solid #ffeaa7;
   border-radius: 4px;
   font-size: 13px;
   color: #856404;
+}
+
+/* 警告表示スタイル */
+.input-warning {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  color: #856404;
+  padding: 6px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  margin-top: 6px;
 }
 
 /* 警告表示 */
@@ -436,13 +510,13 @@
   background: #f8f9fa;
   border-radius: 8px;
   margin-bottom: 20px;
+  overflow: hidden;
 }
 
 .collapsible-header {
   background: #e9ecef;
   border: none;
   padding: 15px 20px;
-  border-radius: 8px 8px 0 0;
   cursor: pointer;
   width: 100%;
   text-align: left;
@@ -464,21 +538,38 @@
   border-top: 1px solid #dee2e6;
 }
 
-.collapsible-content.collapsed {
-  display: none;
+/* 範囲設定 */
+.range-input {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-/* 警告表示スタイル */
-.input-warning {
-  background: #fff3cd;
-  border: 1px solid #ffeaa7;
-  color: #856404;
+.range-input label {
+  min-width: 120px;
+  font-weight: 500;
+}
+
+.range-input input[type="number"] {
+  width: 70px;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.range-display {
+  background: #f0f8f0;
   padding: 4px 8px;
   border-radius: 3px;
   font-size: 11px;
+  color: #555;
   margin-top: 4px;
-  grid-column: 1 / -1;
+  flex-basis: 100%;
 }
+
+/* 警告表示スタイル */
 
 /* レスポンシブデザイン */
 @media (max-width: 1024px) {
@@ -487,7 +578,7 @@
     gap: 20px;
   }
   
-  .params-column {
+  .controls-column {
     position: static;
     order: -1;
   }
@@ -499,16 +590,16 @@
   }
   
   .value-input-row {
-    grid-template-columns: 50px 50px 100px 1fr;
+    grid-template-columns: 80px 60px 1fr 200px;
     gap: 6px;
   }
   
   .step-buttons {
-    min-width: 180px;
+    gap: 1px;
   }
   
   .step-button {
-    min-width: 24px;
+    min-width: 28px;
     padding: 3px 6px;
     font-size: 10px;
   }
@@ -530,19 +621,20 @@
   
   .value-input-row {
     grid-template-columns: 1fr;
-    gap: 4px;
+    gap: 8px;
   }
   
-  .value-input-row > * {
-    justify-self: stretch;
+  .formatted-display {
+    flex-direction: row;
+    gap: 8px;
   }
   
   .step-buttons {
     justify-content: center;
-    min-width: auto;
   }
   
-  .formatted-value {
+  .formatted-value,
+  .common-value {
     font-size: 11px;
   }
   

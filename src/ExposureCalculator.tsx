@@ -6,7 +6,14 @@ import {
   formatShutterSpeed,
   formatFNumber,
   formatISO,
-  generateSteps
+  generateSteps,
+  parseCommonFNumber,
+  parseCommonShutterSpeed,
+  parseCommonISO,
+  isNearCommonValue,
+  formatCommonFNumber,
+  formatCommonShutterSpeed,
+  formatCommonISO
 } from './exposureUtils';
 import './ExposureCalculator.css';
 
@@ -41,8 +48,12 @@ const ExposureCalculator: React.FC = () => {
 
   const [selectedParam1, setSelectedParam1] = useState<keyof ExposureValues>('av');
   const [selectedParam2, setSelectedParam2] = useState<keyof ExposureValues>('tv');
-  const [calculatedParam] = useState<keyof ExposureValues>('ev');
+  const [calculatedParam, setCalculatedParam] = useState<keyof ExposureValues>('ev');
   const [showEVTable, setShowEVTable] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [inputWarnings, setInputWarnings] = useState<Record<keyof ExposureValues, string>>({
+    ev: '', av: '', tv: '', iso: ''
+  });
 
   // 固定パラメータの数を数える
   const fixedCount = Object.values(fixedParams).filter(Boolean).length;
@@ -251,12 +262,72 @@ const ExposureCalculator: React.FC = () => {
     return false;
   };
 
+  // 値の入力処理（一般表現対応）
+  const handleValueChange = (param: keyof ExposureValues, inputValue: string) => {
+    let newValue: number | null = null;
+    let warning = '';
+
+    // 一般表現からの変換を試行
+    if (param === 'av' && inputValue.toLowerCase().includes('f')) {
+      newValue = parseCommonFNumber(inputValue);
+      if (newValue === null) warning = 'f値の形式が正しくありません (例: f/2.8)';
+    } else if (param === 'tv' && (inputValue.includes('/') || inputValue.toLowerCase().includes('s'))) {
+      newValue = parseCommonShutterSpeed(inputValue);
+      if (newValue === null) warning = 'シャッター速度の形式が正しくありません (例: 1/125, 2s)';
+    } else if (param === 'iso' && inputValue.toLowerCase().includes('iso')) {
+      newValue = parseCommonISO(inputValue);
+      if (newValue === null) warning = 'ISO感度の形式が正しくありません (例: ISO400)';
+    } else {
+      // 数値として解析
+      const parsed = parseFloat(inputValue);
+      if (!isNaN(parsed)) newValue = parsed;
+    }
+
+    if (newValue !== null) {
+      setValues(prev => ({ ...prev, [param]: newValue! }));
+      
+      // 一般表現での警告チェック
+      if (!isNearCommonValue(param, newValue)) {
+        warning = 'この値は一般的なカメラ設定値ではありません';
+      }
+    }
+
+    setInputWarnings(prev => ({ ...prev, [param]: warning }));
+  };
+
+  // 一般表現での表示を取得
+  const getCommonValueDisplay = (param: keyof ExposureValues, value: number): string => {
+    switch (param) {
+      case 'av': return formatCommonFNumber(value);
+      case 'tv': return formatCommonShutterSpeed(value);
+      case 'iso': return formatCommonISO(value);
+      default: return '';
+    }
+  };
+
+  // 範囲の一般表現表示
+  const getRangeDisplay = (param: keyof ExposureValues, range: { min: number; max: number }): string => {
+    switch (param) {
+      case 'ev':
+        return `${getEVDescription(range.min).split(' ')[0]} ～ ${getEVDescription(range.max).split(' ')[0]}`;
+      case 'av':
+        return `${formatCommonFNumber(range.min)} ～ ${formatCommonFNumber(range.max)}`;
+      case 'tv':
+        return `${formatCommonShutterSpeed(range.max)} ～ ${formatCommonShutterSpeed(range.min)}`;
+      case 'iso':
+        return `${formatCommonISO(range.min)} ～ ${formatCommonISO(range.max)}`;
+      default:
+        return '';
+    }
+  };
+
   return (
     <div className="exposure-calculator">
       <h1>露出計算機</h1>
       
       <div className="main-content">
-        <div className="controls-column">
+        {/* 左のカラム：計算結果・表示エリア */}
+        <div className="results-column">
           {/* モード選択 */}
           <div className="section mode-selector">
             <h2>計算モード</h2>
@@ -298,219 +369,6 @@ const ExposureCalculator: React.FC = () => {
             </label>
           </div>
 
-          {/* 設定 */}
-          <div className="section">
-            <h2>設定</h2>
-            
-            <div className="step-config">
-              <label>
-                段数:
-                <select
-                  value={stepConfig.stepSize}
-                  onChange={(e) => setStepConfig({ stepSize: parseFloat(e.target.value) })}
-                >
-                  <option value={1}>1段 (1 stop)</option>
-                  <option value={1/2}>1/2段 (1/2 stop)</option>
-                  <option value={1/3}>1/3段 (1/3 stop)</option>
-                </select>
-              </label>
-            </div>
-
-            <div className="range-config">
-              <h3>値の範囲</h3>
-              {Object.entries(ranges).map(([param, range]) => (
-                <div key={param} className="range-input">
-                  <label>{getParamLabel(param as keyof ExposureValues)}:</label>
-                  <input
-                    type="number"
-                    value={range.min}
-                    onChange={(e) => setRanges(prev => ({
-                      ...prev,
-                      [param]: { ...prev[param as keyof RangeConfig], min: parseFloat(e.target.value) }
-                    }))}
-                    step={stepConfig.stepSize}
-                  />
-                  <span>～</span>
-                  <input
-                    type="number"
-                    value={range.max}
-                    onChange={(e) => setRanges(prev => ({
-                      ...prev,
-                      [param]: { ...prev[param as keyof RangeConfig], max: parseFloat(e.target.value) }
-                    }))}
-                    step={stepConfig.stepSize}
-                  />
-                  <span className="range-display">
-                    ({param === 'ev' ? `${getEVDescription(range.min).split(' ')[0]} ～ ${getEVDescription(range.max).split(' ')[0]}` : 
-                      param === 'av' ? `f/${(Math.pow(2, range.min/2)).toFixed(1)} ～ f/${(Math.pow(2, range.max/2)).toFixed(0)}` :
-                      param === 'tv' ? `${formatShutterSpeed(range.max)} ～ ${formatShutterSpeed(range.min)}` :
-                      `ISO${Math.round(Math.pow(2, range.min) * 100)} ～ ISO${Math.round(Math.pow(2, range.max) * 100)}`})
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* パラメータ選択 (モードに応じて) */}
-          {mode === 'table1D' && (
-            <div className="section">
-              <h2>固定パラメータ選択</h2>
-              <label>
-                パラメータ1:
-                <select value={selectedParam1} onChange={(e) => setSelectedParam1(e.target.value as keyof ExposureValues)}>
-                  <option value="ev">EV (露出値)</option>
-                  <option value="av">AV (絞り値)</option>
-                  <option value="tv">TV (シャッター速度)</option>
-                  <option value="iso">ISO (感度)</option>
-                </select>
-              </label>
-              <label>
-                パラメータ2:
-                <select value={selectedParam2} onChange={(e) => setSelectedParam2(e.target.value as keyof ExposureValues)}>
-                  <option value="ev">EV (露出値)</option>
-                  <option value="av">AV (絞り値)</option>
-                  <option value="tv">TV (シャッター速度)</option>
-                  <option value="iso">ISO (感度)</option>
-                </select>
-              </label>
-            </div>
-          )}
-
-          {(mode === 'table2D' || mode === 'matrix2D') && (
-            <div className="section">
-              <h2>固定パラメータ選択</h2>
-              <label>
-                固定パラメータ:
-                <select value={selectedParam1} onChange={(e) => setSelectedParam1(e.target.value as keyof ExposureValues)}>
-                  <option value="ev">EV (露出値)</option>
-                  <option value="av">AV (絞り値)</option>
-                  <option value="tv">TV (シャッター速度)</option>
-                  <option value="iso">ISO (感度)</option>
-                </select>
-              </label>
-              {mode === 'matrix2D' && (
-                <div style={{ marginTop: '10px', fontSize: '12px', color: '#666' }}>
-                  ※ 残り3つのパラメータから自動的に行・列・結果が決定されます
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* 値入力 */}
-          <div className="section value-inputs">
-            <h2>露出パラメータ</h2>
-            {Object.entries(values).map(([param, value]) => (
-              <div key={param}>
-                <div className="value-input-row">
-                  <label>{getParamLabel(param as keyof ExposureValues)}:</label>
-                  <input
-                    type="number"
-                    value={value}
-                    onChange={(e) => setValues(prev => ({ ...prev, [param]: parseFloat(e.target.value) }))}
-                    step={stepConfig.stepSize}
-                    disabled={mode === 'single' && !fixedParams[param as keyof ExposureValues]}
-                  />
-                  <span className="formatted-value">
-                    {formatValue(param as keyof ExposureValues, value)}
-                  </span>
-                  <div className="step-buttons">
-                    <button 
-                      className="step-button"
-                      onClick={() => adjustValue(param as keyof ExposureValues, -1)}
-                      disabled={isStepDisabled(param as keyof ExposureValues, -1)}
-                    >-1</button>
-                    <button 
-                      className="step-button"
-                      onClick={() => adjustValue(param as keyof ExposureValues, -0.5)}
-                      disabled={isStepDisabled(param as keyof ExposureValues, -0.5)}
-                    >-½</button>
-                    <button 
-                      className="step-button"
-                      onClick={() => adjustValue(param as keyof ExposureValues, -1/3)}
-                      disabled={isStepDisabled(param as keyof ExposureValues, -1/3)}
-                    >-⅓</button>
-                    <button 
-                      className="step-button"
-                      onClick={() => adjustValue(param as keyof ExposureValues, 1/3)}
-                      disabled={isStepDisabled(param as keyof ExposureValues, 1/3)}
-                    >+⅓</button>
-                    <button 
-                      className="step-button"
-                      onClick={() => adjustValue(param as keyof ExposureValues, 0.5)}
-                      disabled={isStepDisabled(param as keyof ExposureValues, 0.5)}
-                    >+½</button>
-                    <button 
-                      className="step-button"
-                      onClick={() => adjustValue(param as keyof ExposureValues, 1)}
-                      disabled={isStepDisabled(param as keyof ExposureValues, 1)}
-                    >+1</button>
-                  </div>
-                </div>
-                {param === 'ev' && (
-                  <div className="ev-description">
-                    {getEVDescription(value)}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {/* EV-明るさ目安表 */}
-          <div className="section ev-reference-table">
-            <button 
-              className="ev-reference-toggle"
-              onClick={() => setShowEVTable(!showEVTable)}
-            >
-              EV-明るさ目安表 {showEVTable ? '▼' : '▶'}
-            </button>
-            {showEVTable && (
-              <div className="ev-reference-content">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>EV値</th>
-                      <th>明るさの目安</th>
-                      <th>照度</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[
-                      [16, "真夏のビーチ", "164kLux"],
-                      [15, "快晴", "81.9kLux"],
-                      [14, "晴れ", "41.0kLux"],
-                      [13, "薄日", "20.5kLux"],
-                      [12, "曇り", "10.2kLux"],
-                      [11, "雨曇り", "5.12kLux"],
-                      [10, "陳列棚", "2.56kLux"],
-                      [9, "明るい部屋", "1.28kLux"],
-                      [8, "エレベータ", "640Lux"],
-                      [7, "体育館", "320Lux"],
-                      [6, "廊下", "160Lux"],
-                      [5, "休憩室", "80Lux"],
-                      [4, "暗い室内", "40Lux"],
-                      [3, "観客席", "20Lux"],
-                      [2, "映画館", "10Lux"],
-                      [1, "日没後", "5Lux"],
-                      [0, "薄明り", "2.5Lux"],
-                      [-1, "深夜屋内", "1.25Lux"],
-                      [-2, "月夜", "0.63Lux"],
-                      [-3, "おぼろ月夜", "0.31Lux"],
-                      [-4, "星空", "0.16Lux"]
-                    ].map(([ev, desc, lux]) => (
-                      <tr key={ev}>
-                        <td>EV {ev}</td>
-                        <td>{desc}</td>
-                        <td>{lux}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="results-column">
           {/* 計算実行・結果表示 */}
           {mode === 'single' && (
             <div className="section">
@@ -597,7 +455,7 @@ const ExposureCalculator: React.FC = () => {
             </div>
           )}
 
-          {mode === 'table2D' && (
+          {mode === 'matrix2D' && (
             <div className="section">
               <h2>真の2次元表（マトリックス形式）</h2>
               <div className="table-container">
@@ -605,16 +463,16 @@ const ExposureCalculator: React.FC = () => {
                   <table>
                     <thead>
                       <tr>
-                        <th>{getParamLabel(selectedParam1)}</th>
+                        <th>{getParamLabel(generate2DMatrixTable().rowParam)} / {getParamLabel(generate2DMatrixTable().colParam)}</th>
                         {generate2DMatrixTable().colSteps.map((step, index) => (
-                          <th key={index}>{formatValue(selectedParam1, step)}</th>
+                          <th key={index}>{formatValue(generate2DMatrixTable().colParam, step)}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
                       {generate2DMatrixTable().matrix.map((row, rowIndex) => (
                         <tr key={rowIndex}>
-                          <td>{formatValue(selectedParam1, generate2DMatrixTable().rowSteps[rowIndex])}</td>
+                          <td>{formatValue(generate2DMatrixTable().rowParam, generate2DMatrixTable().rowSteps[rowIndex])}</td>
                           {row.map((cell, colIndex) => (
                             <td key={colIndex} className={cell.isValid ? '' : 'invalid'}>
                               {cell.value !== null
@@ -631,6 +489,292 @@ const ExposureCalculator: React.FC = () => {
               </div>
             </div>
           )}
+
+          {/* EV-明るさ目安表 */}
+          <div className="section ev-reference-table">
+            <button 
+              className="ev-reference-toggle"
+              onClick={() => setShowEVTable(!showEVTable)}
+            >
+              EV-明るさ目安表 {showEVTable ? '▼' : '▶'}
+            </button>
+            {showEVTable && (
+              <div className="ev-reference-content">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>EV値</th>
+                      <th>明るさの目安</th>
+                      <th>照度</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      [16, "真夏のビーチ", "164kLux"],
+                      [15, "快晴", "81.9kLux"],
+                      [14, "晴れ", "41.0kLux"],
+                      [13, "薄日", "20.5kLux"],
+                      [12, "曇り", "10.2kLux"],
+                      [11, "雨曇り", "5.12kLux"],
+                      [10, "陳列棚", "2.56kLux"],
+                      [9, "明るい部屋", "1.28kLux"],
+                      [8, "エレベータ", "640Lux"],
+                      [7, "体育館", "320Lux"],
+                      [6, "廊下", "160Lux"],
+                      [5, "休憩室", "80Lux"],
+                      [4, "暗い室内", "40Lux"],
+                      [3, "観客席", "20Lux"],
+                      [2, "映画館", "10Lux"],
+                      [1, "日没後", "5Lux"],
+                      [0, "薄明り", "2.5Lux"],
+                      [-1, "深夜屋内", "1.25Lux"],
+                      [-2, "月夜", "0.63Lux"],
+                      [-3, "おぼろ月夜", "0.31Lux"],
+                      [-4, "星空", "0.16Lux"]
+                    ].map(([ev, desc, lux]) => (
+                      <tr key={ev}>
+                        <td>EV {ev}</td>
+                        <td>{desc}</td>
+                        <td>{lux}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 右のカラム：露出パラメータ */}
+        <div className="controls-column">
+          {/* 露出パラメータ */}
+          <div className="section value-inputs">
+            <h2>露出パラメータ</h2>
+            
+            {/* モードに応じた固定パラメータ選択 */}
+            {mode === 'single' && (
+              <div className="param-selection">
+                <h3>計算対象パラメータ</h3>
+                <label>
+                  <input 
+                    type="radio" 
+                    name="targetParam" 
+                    value="ev" 
+                    checked={calculatedParam === 'ev'}
+                    onChange={(e) => setCalculatedParam(e.target.value as keyof ExposureValues)}
+                  />
+                  EV値を計算
+                </label>
+                <label>
+                  <input 
+                    type="radio" 
+                    name="targetParam" 
+                    value="av" 
+                    checked={calculatedParam === 'av'}
+                    onChange={(e) => setCalculatedParam(e.target.value as keyof ExposureValues)}
+                  />
+                  絞り値を計算
+                </label>
+                <label>
+                  <input 
+                    type="radio" 
+                    name="targetParam" 
+                    value="tv" 
+                    checked={calculatedParam === 'tv'}
+                    onChange={(e) => setCalculatedParam(e.target.value as keyof ExposureValues)}
+                  />
+                  シャッター速度を計算
+                </label>
+                <label>
+                  <input 
+                    type="radio" 
+                    name="targetParam" 
+                    value="iso" 
+                    checked={calculatedParam === 'iso'}
+                    onChange={(e) => setCalculatedParam(e.target.value as keyof ExposureValues)}
+                  />
+                  ISO感度を計算
+                </label>
+              </div>
+            )}
+
+            {mode === 'table1D' && (
+              <div className="param-selection">
+                <h3>固定パラメータ選択</h3>
+                <label>
+                  パラメータ1:
+                  <select value={selectedParam1} onChange={(e) => setSelectedParam1(e.target.value as keyof ExposureValues)}>
+                    <option value="ev">EV (露出値)</option>
+                    <option value="av">AV (絞り値)</option>
+                    <option value="tv">TV (シャッター速度)</option>
+                    <option value="iso">ISO (感度)</option>
+                  </select>
+                </label>
+                <label>
+                  パラメータ2:
+                  <select value={selectedParam2} onChange={(e) => setSelectedParam2(e.target.value as keyof ExposureValues)}>
+                    <option value="ev">EV (露出値)</option>
+                    <option value="av">AV (絞り値)</option>
+                    <option value="tv">TV (シャッター速度)</option>
+                    <option value="iso">ISO (感度)</option>
+                  </select>
+                </label>
+              </div>
+            )}
+
+            {(mode === 'table2D' || mode === 'matrix2D') && (
+              <div className="param-selection">
+                <h3>固定パラメータ選択</h3>
+                <label>
+                  固定パラメータ:
+                  <select value={selectedParam1} onChange={(e) => setSelectedParam1(e.target.value as keyof ExposureValues)}>
+                    <option value="ev">EV (露出値)</option>
+                    <option value="av">AV (絞り値)</option>
+                    <option value="tv">TV (シャッター速度)</option>
+                    <option value="iso">ISO (感度)</option>
+                  </select>
+                </label>
+                {mode === 'matrix2D' && (
+                  <div className="param-note">
+                    ※ 残り3つのパラメータから自動的に行・列・結果が決定されます
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* パラメータ値入力 */}
+            {Object.entries(values).map(([param, value]) => {
+              const isInputParam = mode === 'single' ? param !== calculatedParam : 
+                                  mode === 'table1D' ? (param === selectedParam1 || param === selectedParam2) :
+                                  (mode === 'table2D' || mode === 'matrix2D') ? param === selectedParam1 : false;
+              
+              return (
+                <div key={param} className="parameter-row">
+                  <div className="value-input-row">
+                    <label className="param-label">{getParamLabel(param as keyof ExposureValues)}:</label>
+                    <input
+                      type="text"
+                      value={value.toFixed(2)}
+                      onChange={(e) => handleValueChange(param as keyof ExposureValues, e.target.value)}
+                      disabled={!isInputParam && mode !== 'single'}
+                      className="value-input"
+                    />
+                    <div className="formatted-display">
+                      <div className="formatted-value">
+                        {formatValue(param as keyof ExposureValues, value)}
+                      </div>
+                      {param !== 'ev' && (
+                        <div className="common-value">
+                          {getCommonValueDisplay(param as keyof ExposureValues, value)}
+                        </div>
+                      )}
+                    </div>
+                    <div className="step-buttons">
+                      <button 
+                        className={`step-button minus full-stop ${isStepDisabled(param as keyof ExposureValues, -1) ? 'disabled' : ''}`}
+                        onClick={() => adjustValue(param as keyof ExposureValues, -1)}
+                        disabled={isStepDisabled(param as keyof ExposureValues, -1)}
+                      >-1</button>
+                      <button 
+                        className={`step-button minus ${isStepDisabled(param as keyof ExposureValues, -0.5) ? 'disabled' : ''}`}
+                        onClick={() => adjustValue(param as keyof ExposureValues, -0.5)}
+                        disabled={isStepDisabled(param as keyof ExposureValues, -0.5)}
+                      >-½</button>
+                      <button 
+                        className={`step-button minus ${isStepDisabled(param as keyof ExposureValues, -1/3) ? 'disabled' : ''}`}
+                        onClick={() => adjustValue(param as keyof ExposureValues, -1/3)}
+                        disabled={isStepDisabled(param as keyof ExposureValues, -1/3)}
+                      >-⅓</button>
+                      <button 
+                        className={`step-button plus ${isStepDisabled(param as keyof ExposureValues, 1/3) ? 'disabled' : ''}`}
+                        onClick={() => adjustValue(param as keyof ExposureValues, 1/3)}
+                        disabled={isStepDisabled(param as keyof ExposureValues, 1/3)}
+                      >+⅓</button>
+                      <button 
+                        className={`step-button plus ${isStepDisabled(param as keyof ExposureValues, 0.5) ? 'disabled' : ''}`}
+                        onClick={() => adjustValue(param as keyof ExposureValues, 0.5)}
+                        disabled={isStepDisabled(param as keyof ExposureValues, 0.5)}
+                      >+½</button>
+                      <button 
+                        className={`step-button plus full-stop ${isStepDisabled(param as keyof ExposureValues, 1) ? 'disabled' : ''}`}
+                        onClick={() => adjustValue(param as keyof ExposureValues, 1)}
+                        disabled={isStepDisabled(param as keyof ExposureValues, 1)}
+                      >+1</button>
+                    </div>
+                  </div>
+                  {param === 'ev' && (
+                    <div className="ev-description">
+                      {getEVDescription(value)}
+                    </div>
+                  )}
+                  {inputWarnings[param as keyof ExposureValues] && (
+                    <div className="input-warning">
+                      {inputWarnings[param as keyof ExposureValues]}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* 設定（折りたたみ可能） */}
+          <div className="section collapsible-section">
+            <button 
+              className="collapsible-header"
+              onClick={() => setShowSettings(!showSettings)}
+            >
+              設定 
+              <span>{showSettings ? '▼' : '▶'}</span>
+            </button>
+            {showSettings && (
+              <div className="collapsible-content">
+                <div className="step-config">
+                  <label>
+                    段数:
+                    <select
+                      value={stepConfig.stepSize}
+                      onChange={(e) => setStepConfig({ stepSize: parseFloat(e.target.value) })}
+                    >
+                      <option value={1}>1段 (1 stop)</option>
+                      <option value={1/2}>1/2段 (1/2 stop)</option>
+                      <option value={1/3}>1/3段 (1/3 stop)</option>
+                    </select>
+                  </label>
+                </div>
+
+                <div className="range-config">
+                  <h3>値の範囲</h3>
+                  {Object.entries(ranges).map(([param, range]) => (
+                    <div key={param} className="range-input">
+                      <label>{getParamLabel(param as keyof ExposureValues)}:</label>
+                      <input
+                        type="number"
+                        value={range.min}
+                        onChange={(e) => setRanges(prev => ({
+                          ...prev,
+                          [param]: { ...prev[param as keyof RangeConfig], min: parseFloat(e.target.value) }
+                        }))}
+                        step={stepConfig.stepSize}
+                      />
+                      <span>～</span>
+                      <input
+                        type="number"
+                        value={range.max}
+                        onChange={(e) => setRanges(prev => ({
+                          ...prev,
+                          [param]: { ...prev[param as keyof RangeConfig], max: parseFloat(e.target.value) }
+                        }))}
+                        step={stepConfig.stepSize}
+                      />
+                      <div className="range-display">
+                        {getRangeDisplay(param as keyof ExposureValues, range)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
