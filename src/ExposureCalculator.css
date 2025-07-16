@@ -1,9 +1,21 @@
+/*
+ * ExpoCalc - Camera Exposure Calculator
+ * Version: 1.0.0
+ * Created: 2025-07-17
+ * Author: GitHub Copilot Assistant
+ * Description: Interactive camera exposure calculator with EV, AV, TV, ISO parameters
+ * Features: Single calculation, 1D table, Matrix table modes with responsive design
+ * Copyright (c) 2025 ExpoCalc Project
+ * License: MIT License
+ */
+
 .exposure-calculator {
   max-width: 1400px;
   margin: 0 auto;
   padding: 20px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   box-sizing: border-box;
+  font-size: 16px; /* ベースフォントサイズを大きく */
 }
 
 .exposure-calculator *,
@@ -93,10 +105,12 @@
 
 .step-config select {
   margin-left: 10px;
-  padding: 5px 10px;
+  padding: 8px 12px; /* 5px 10px → 8px 12px */
   border: 1px solid #ddd;
   border-radius: 4px;
   background: white;
+  font-size: 16px; /* 追加 */
+  min-width: 150px; /* 追加 */
 }
 
 .range-config {
@@ -159,10 +173,12 @@
 
 .param-selection select {
   margin-left: 10px;
-  padding: 5px 10px;
+  padding: 8px 12px; /* 5px 10px → 8px 12px */
   border: 1px solid #ddd;
   border-radius: 4px;
   background: white;
+  font-size: 16px; /* 追加 */
+  min-width: 180px; /* 追加 */
 }
 
 .param-selection.single-calc {
@@ -293,15 +309,15 @@
 }
 
 .main-content.matrix-mode .value-input-row .step-buttons {
-  min-width: 220px;
+  min-width: 230px; /* 高解像度時は少し小さく */
   flex-shrink: 0;
   /* ラベルとinputが100px + 120px + gap = 130px以上を取っている場合、
-     220pxのボタンエリアが入り切らない時は下に折り返される */
+     230pxのボタンエリアが入り切らない時は下に折り返される */
 }
 
 .param-label {
   font-weight: 500;
-  font-size: 14px;
+  font-size: 20px; /* 18px → 20px */
   text-align: left;
   cursor: pointer;
   transition: color 0.2s;
@@ -313,12 +329,11 @@
 }
 
 .value-input {
-  width: calc(100% - 6px); /* 24pxはpaddingとborderの合計 */
-  padding-top: 6px;
-  padding-bottom: 6px;
+  width: calc(100% - 6px);
+  padding: 14px 10px; /* 12px 8px → 14px 10px */
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 20px; /* 18px → 20px */
   text-align: center;
 }
 
@@ -329,24 +344,23 @@
 
 .strict-value {
   background: transparent;
-  padding: 6px 8px;
+  padding: 10px 12px; /* 8px 10px → 10px 12px */
   border: none;
   border-radius: 4px;
   font-family: monospace;
-  font-size: 11px;
+  font-size: 16px; /* 14px → 16px */
   text-align: center;
   white-space: nowrap;
   color: #bbb;
   font-style: italic;
 }
 
-
 .common-value {
   background: #f0f8f0;
-  padding: 6px;
+  padding: 10px; /* 8px → 10px */
   border: 1px solid #d0e0d0;
   border-radius: 3px;
-  font-size: 12px;
+  font-size: 18px; /* 16px → 18px */
   text-align: center;
   color: #555;
   width: 100%;
@@ -359,23 +373,23 @@
 
 .step-buttons {
   display: flex;
-  gap: 2px;
+  gap: 2px; /* 高解像度時は少し詰める */
   flex-wrap: wrap;
   justify-content: flex-end;
   align-items: center;
   max-width: 100%;
-  min-width: 220px; /* 最小幅を保証 */
+  min-width: 230px; /* 高解像度時は少し小さく */
 }
 
 .step-button {
-  padding: 4px 8px;
-  border-radius: 3px;
-  font-size: 11px;
+  padding: 8px 12px; /* 高解像度時は少し小さく */
+  border-radius: 4px;
+  font-size: 14px; /* 高解像度時は少し小さく */
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
   border: 1px solid;
-  min-width: 32px;
+  min-width: 44px; /* 高解像度時は少し小さく */
   text-align: center;
   background: white;
 }
@@ -555,7 +569,7 @@
 .table-container table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 18px; /* 16px → 18px */
   min-width: 300px; /* paddingを考慮した調整 */
 }
 
@@ -569,11 +583,12 @@
 .table-container th {
   background: #007acc;
   color: white;
-  padding: 10px 8px;
+  padding: 18px 14px; /* 15px 12px → 18px 14px */
   text-align: left;
   font-weight: 600;
   border-right: 1px solid #005fa3;
   white-space: nowrap;
+  font-size: 18px; /* 16px → 18px */
 }
 
 .table-container th:first-child {
@@ -600,10 +615,11 @@
 }
 
 .table-container td {
-  padding: 8px;
+  padding: 14px; /* 12px → 14px */
   border-bottom: 1px solid #eee;
   border-right: 1px solid #eee;
   white-space: nowrap;
+  font-size: 18px; /* 16px → 18px */
 }
 
 .table-container td:first-child {
@@ -887,7 +903,7 @@
 .matrix-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: 18px; /* 16px → 18px */
   min-width: 300px; /* paddingを考慮した調整 */
 }
 
@@ -901,12 +917,12 @@
 .matrix-table th {
   background: #007acc;
   color: white;
-  padding: 4px 3px;
+  padding: 10px 8px; /* 8px 6px → 10px 8px */
   text-align: center;
   font-weight: 600;
   border-right: 1px solid #005fa3;
   white-space: nowrap;
-  font-size: 9px;
+  font-size: 16px; /* 14px → 16px */
 }
 
 .matrix-table th.axis-label {
@@ -919,18 +935,18 @@
   text-align: center;
   min-width: 0px;
   max-width: 0px;
-  font-size: 8px;
+  font-size: 14px; /* 12px → 14px */
   line-height: 1.2;
-  padding: 4px 2px;
+  padding: 8px 6px; /* 6px 4px → 8px 6px */
 }
 
 .matrix-table td {
-  padding: 4px 2px;
+  padding: 8px 6px; /* 6px 4px → 8px 6px */
   text-align: center;
   border-right: 1px solid #eee;
   border-bottom: 1px solid #eee;
   white-space: nowrap;
-  font-size: 9px;
+  font-size: 16px; /* 14px → 16px */
 }
 
 .matrix-table td.row-header {
@@ -941,10 +957,10 @@
   color: #333;
   z-index: 9;
   border-right: 2px solid #007acc;
-  min-width: 60px;
-  max-width: 80px;
-  font-size: 9px;
-  padding: 4px 2px;
+  min-width: 90px; /* 80px → 90px */
+  max-width: 110px; /* 100px → 110px */
+  font-size: 16px; /* 14px → 16px */
+  padding: 8px 6px; /* 6px 4px → 8px 6px */
 }
 
 .matrix-table td.cell-value {
@@ -979,19 +995,19 @@
   
   .matrix-table th.axis-label,
   .matrix-table td.row-header {
-    min-width: 60px;
-    max-width: 80px;
-    font-size: 8px;
+    min-width: 80px; /* 60px → 80px */
+    max-width: 100px; /* 80px → 100px */
+    font-size: 14px; /* 8px → 14px */
   }
   
   .matrix-table th {
-    padding: 3px 2px;
-    font-size: 8px;
+    padding: 6px 4px; /* 3px 2px → 6px 4px */
+    font-size: 14px; /* 8px → 14px */
   }
   
   .matrix-table td {
-    padding: 3px 1px;
-    font-size: 8px;
+    padding: 6px 4px; /* 3px 1px → 6px 4px */
+    font-size: 14px; /* 8px → 14px */
   }
 }
 
@@ -1038,30 +1054,30 @@
   }
   
   .step-buttons {
-    gap: 1px;
-    min-width: 180px;
+    gap: 3px; /* 1px → 3px */
+    min-width: 260px; /* 180px → 260px */
   }
   
   .main-content.matrix-mode .step-buttons {
-    min-width: 180px;
+    min-width: 260px; /* 180px → 260px */
   }
   
   .step-button {
-    min-width: 28px;
-    padding: 3px 6px;
-    font-size: 10px;
+    min-width: 40px; /* 28px → 40px */
+    padding: 8px 12px; /* 3px 6px → 8px 12px */
+    font-size: 16px; /* 10px → 16px */
   }
   
   .table-container {
-    font-size: 9px;
+    font-size: 16px; /* 9px → 16px */
     width: 100%;
     max-width: calc(100vw - 40px);
   }
   
   .table-container th,
   .table-container td {
-    padding: 3px 2px;
-    font-size: 9px;
+    padding: 8px 6px; /* 3px 2px → 8px 6px */
+    font-size: 16px; /* 9px → 16px */
   }
 }
 
@@ -1167,19 +1183,19 @@
   
   /* コントロールの調整 */
   .step-button {
-    min-width: 24px;
-    padding: 2px 4px;
-    font-size: 9px;
+    min-width: 36px; /* 24px → 36px */
+    padding: 6px 8px; /* 2px 4px → 6px 8px */
+    font-size: 14px; /* 9px → 14px */
   }
   
   .value-input {
-    font-size: 12px;
-    padding: 4px;
+    font-size: 18px; /* 12px → 18px */
+    padding: 8px; /* 4px → 8px */
     box-sizing: border-box;
   }
   
   .param-label {
-    font-size: 12px;
+    font-size: 18px; /* 12px → 18px */
   }
 }
 
@@ -1226,4 +1242,24 @@
     padding: 2px 1px;
     font-size: 8px;
   }
+}
+
+/* アプリフッター */
+.app-footer {
+  margin-top: 40px;
+  padding: 20px;
+  text-align: center;
+  border-top: 1px solid #ddd;
+  background: #f8f9fa;
+  color: #666;
+}
+
+.footer-content p {
+  margin: 5px 0;
+  font-size: 12px;
+}
+
+.footer-content p:first-child {
+  font-weight: 600;
+  color: #444;
 }

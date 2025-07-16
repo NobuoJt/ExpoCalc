@@ -1,8 +1,12 @@
 {
   "name": "expocalc",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "Interactive camera exposure calculator with EV, AV, TV, ISO parameters",
+  "author": "GitHub Copilot Assistant",
+  "license": "MIT",
+  "keywords": ["camera", "exposure", "calculator", "photography", "ev", "av", "tv", "iso"],
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

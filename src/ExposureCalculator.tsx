@@ -1,3 +1,14 @@
+/*
+ * ExpoCalc - Camera Exposure Calculator
+ * Version: 1.0.0
+ * Created: 2025-07-17
+ * Author: GitHub Copilot Assistant
+ * Description: Interactive camera exposure calculator with EV, AV, TV, ISO parameters
+ * Features: Single calculation, 1D table, Matrix table modes with responsive design
+ * Copyright (c) 2025 ExpoCalc Project
+ * License: MIT License
+ */
+
 import React, { useState, useEffect } from 'react';
 import type { ExposureValues, StepConfig, RangeConfig } from './exposureUtils';
 import {
@@ -124,8 +135,8 @@ const ExposureCalculator: React.FC = () => {
           
           const result = calculateMissingValue(knownValues, calculatedParam);
           setValues(prev => ({ ...prev, [calculatedParam]: result }));
-        } catch (error) {
-          console.error('リアルタイム計算エラー:', error);
+        } catch {
+          // リアルタイム計算エラーは無視して続行
         }
       }
       
@@ -253,8 +264,8 @@ const ExposureCalculator: React.FC = () => {
         } else {
           setInputWarnings(prev => ({ ...prev, [calculatedParam]: '' }));
         }
-      } catch (error) {
-        console.error('ステップ調整時のリアルタイム計算エラー:', error);
+      } catch {
+        // ステップ調整時のリアルタイム計算エラーは無視して続行
       }
     }
   };
@@ -526,8 +537,8 @@ const ExposureCalculator: React.FC = () => {
                                     } else {
                                       setInputWarnings(prev => ({ ...prev, [calculatedParam]: '' }));
                                     }
-                                  } catch (error) {
-                                    console.error('数値入力時のリアルタイム計算エラー:', error);
+                                  } catch {
+                                    // 数値入力時のリアルタイム計算エラーは無視して続行
                                   }
                                 }
                               }
@@ -841,6 +852,14 @@ const ExposureCalculator: React.FC = () => {
           )}
         </div>
       </div>
+      
+      {/* フッター */}
+      <footer className="app-footer">
+        <div className="footer-content">
+          <p>ExpoCalc v1.0.0 - Camera Exposure Calculator</p>
+          <p>© 2025 ExpoCalc Project | MIT License</p>
+        </div>
+      </footer>
     </div>
   );
 };

@@ -1,3 +1,13 @@
+/*
+ * ExpoCalc - Camera Exposure Calculator - Utility Functions
+ * Version: 1.0.0
+ * Created: 2025-07-17
+ * Author: GitHub Copilot Assistant
+ * Description: Core calculation utilities for exposure parameters
+ * Copyright (c) 2025 ExpoCalc Project
+ * License: MIT License
+ */
+
 // 露出計算のユーティリティ関数
 
 export interface ExposureValues {
@@ -515,16 +525,11 @@ export function generateMatrixTableData(
   ranges: RangeConfig,
   stepSize: number
 ): MatrixTableData {
-  console.log('=== マトリックス表生成開始 ===');
-  console.log('固定パラメータ:', fixedParam, '=', baseValues[fixedParam]);
-  console.log('出力パラメータ:', outputParam);
-  
   // 残りの2つのパラメータを行・列に配置
   const allParams: (keyof ExposureValues)[] = ['ev', 'av', 'tv', 'iso'];
   const remainingParams = allParams.filter(p => p !== fixedParam && p !== outputParam);
   
   if (remainingParams.length !== 2) {
-    console.error('残りパラメータが2つではありません:', remainingParams);
     return {
       fixedParam,
       outputParam,
@@ -537,8 +542,6 @@ export function generateMatrixTableData(
   }
   
   const [rowParam, colParam] = remainingParams as [keyof ExposureValues, keyof ExposureValues];
-  console.log('行パラメータ:', rowParam);
-  console.log('列パラメータ:', colParam);
   
   // 行・列の値を生成（設定範囲とステップサイズに基づく）
   const rowRange = ranges[rowParam];
@@ -546,13 +549,8 @@ export function generateMatrixTableData(
   const rowValues = generateSteps(rowRange.min, rowRange.max, stepSize);
   const colValues = generateSteps(colRange.min, colRange.max, stepSize);
   
-  console.log(`行値生成: ${rowParam} ${rowRange.min}～${rowRange.max} ステップ${stepSize} → ${rowValues.length}個`);
-  console.log(`列値生成: ${colParam} ${colRange.min}～${colRange.max} ステップ${stepSize} → ${colValues.length}個`);
-  
   // セルの値を計算（出力パラメータの値）
   const cellValues: (number | null)[][] = [];
-  let calculatedCount = 0;
-  let rangeOutCount = 0;
   
   for (let rowIndex = 0; rowIndex < rowValues.length; rowIndex++) {
     const row: (number | null)[] = [];
@@ -574,22 +572,16 @@ export function generateMatrixTableData(
         const outputRange = ranges[outputParam];
         if (calculatedValue >= outputRange.min && calculatedValue <= outputRange.max) {
           row.push(calculatedValue);
-          calculatedCount++;
         } else {
           row.push(null); // 範囲外
-          rangeOutCount++;
         }
       } catch {
         row.push(null); // 計算エラー
-        rangeOutCount++;
       }
     }
     
     cellValues.push(row);
   }
-  
-  console.log(`セル計算完了: 有効${calculatedCount}個, 範囲外/エラー${rangeOutCount}個`);
-  console.log('=== マトリックス表生成完了 ===');
   
   return {
     fixedParam,
