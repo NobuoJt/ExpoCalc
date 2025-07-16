@@ -17,8 +17,7 @@ import {
   evToLux,
   formatLux,
   isValueInRange,
-  getRangeWarning,
-  clampToRange
+  getRangeWarning
 } from './exposureUtils';
 import './ExposureCalculator.css';
 
@@ -68,6 +67,7 @@ const ExposureCalculator: React.FC = () => {
   const [showEVTable, setShowEVTable] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showDetailedValues, setShowDetailedValues] = useState(false);
+  const [showUnifiedValues, setShowUnifiedValues] = useState(false);
   const [inputWarnings, setInputWarnings] = useState<Record<keyof ExposureValues, string>>({
     ev: '', av: '', tv: '', iso: ''
   });
@@ -792,7 +792,17 @@ const ExposureCalculator: React.FC = () => {
               
               {mode === 'table1D' && (
               <div className="table-1d">
-                <h3>1次元表</h3>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                  <h3>
+                    1次元表 - {formatValue(selectedParam1, values[selectedParam1])}, {formatValue(selectedParam2, values[selectedParam2])}
+                  </h3>
+                  <button 
+                    className="toggle-detailed-values"
+                    onClick={() => setShowUnifiedValues(!showUnifiedValues)}
+                  >
+                    {showUnifiedValues ? '統一表現値を非表示' : '統一表現値を表示'}
+                  </button>
+                </div>
                 <div className="table-container">
                   <table>
                     <thead>
@@ -807,13 +817,28 @@ const ExposureCalculator: React.FC = () => {
                     <tbody>
                       {generate1DTable().slice(0, 50).map((row, index) => (
                         <tr key={index}>
-                          <td>{formatValue(selectedParam1, row.param1)}</td>
-                          <td>{formatValue(selectedParam2, row.param2)}</td>
+                          <td>
+                            {formatValue(selectedParam1, row.param1)}
+                            {showUnifiedValues && (
+                              <div className="unified-value">({selectedParam1.toUpperCase()}={row.param1.toFixed(1)})</div>
+                            )}
+                          </td>
+                          <td>
+                            {formatValue(selectedParam2, row.param2)}
+                            {showUnifiedValues && (
+                              <div className="unified-value">({selectedParam2.toUpperCase()}={row.param2.toFixed(1)})</div>
+                            )}
+                          </td>
                           {Object.keys(values).filter(key => key !== selectedParam1 && key !== selectedParam2).map(param => (
                             <td key={param}>
-                              {row.results[param as keyof ExposureValues] !== undefined 
-                                ? formatValue(param as keyof ExposureValues, row.results[param as keyof ExposureValues]!)
-                                : 'N/A'}
+                              {row.results[param as keyof ExposureValues] !== undefined ? (
+                                <>
+                                  {formatValue(param as keyof ExposureValues, row.results[param as keyof ExposureValues]!)}
+                                  {showUnifiedValues && (
+                                    <div className="unified-value">({param.toUpperCase()}={row.results[param as keyof ExposureValues]!.toFixed(1)})</div>
+                                  )}
+                                </>
+                              ) : 'N/A'}
                             </td>
                           ))}
                         </tr>
