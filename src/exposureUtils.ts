@@ -421,7 +421,7 @@ export function generate1DTableData(
   
   const [varParam1, varParam2] = variableParams;
   
-  // A: 変動パラメータ1について、設定範囲内、設定段数のステップで入力パラメータの候補リストを作成
+  // A: 変動パラメータ1について、設定範囲、設定段数のステップで入力パラメータの候補リストを作成
   const varParam1Range = ranges[varParam1];
   const varParam1Steps = generateSteps(varParam1Range.min, varParam1Range.max, stepSize);
   
@@ -446,7 +446,7 @@ export function generate1DTableData(
     }
   }
   
-  // C: 逆に変動パラメータ2について、設定範囲内、設定段数のステップで入力パラメータの候補リストを作成
+  // C: 逆に変動パラメータ2について、設定範囲、設定段数のステップで入力パラメータの候補リストを作成
   const varParam2Range = ranges[varParam2];
   const varParam2Steps = generateSteps(varParam2Range.min, varParam2Range.max, stepSize);
   
@@ -494,4 +494,110 @@ export function generate1DTableData(
   uniqueList.sort((a, b) => a[varParam1] - b[varParam1]);
   
   return { variableParams, combinations: uniqueList };
+}
+
+// マトリックス表用：1固定パラメータ、1出力パラメータ、残り2つを行・列に配置
+export interface MatrixTableData {
+  fixedParam: keyof ExposureValues;
+  outputParam: keyof ExposureValues;
+  rowParam: keyof ExposureValues;
+  colParam: keyof ExposureValues;
+  rowValues: number[];
+  colValues: number[];
+  cellValues: (number | null)[][]; // 行×列のマトリックス、範囲外はnull
+}
+
+// マトリックス表のデータを生成
+export function generateMatrixTableData(
+  fixedParam: keyof ExposureValues,
+  outputParam: keyof ExposureValues,
+  baseValues: ExposureValues,
+  ranges: RangeConfig,
+  stepSize: number
+): MatrixTableData {
+  console.log('=== マトリックス表生成開始 ===');
+  console.log('固定パラメータ:', fixedParam, '=', baseValues[fixedParam]);
+  console.log('出力パラメータ:', outputParam);
+  
+  // 残りの2つのパラメータを行・列に配置
+  const allParams: (keyof ExposureValues)[] = ['ev', 'av', 'tv', 'iso'];
+  const remainingParams = allParams.filter(p => p !== fixedParam && p !== outputParam);
+  
+  if (remainingParams.length !== 2) {
+    console.error('残りパラメータが2つではありません:', remainingParams);
+    return {
+      fixedParam,
+      outputParam,
+      rowParam: 'ev',
+      colParam: 'av',
+      rowValues: [],
+      colValues: [],
+      cellValues: []
+    };
+  }
+  
+  const [rowParam, colParam] = remainingParams as [keyof ExposureValues, keyof ExposureValues];
+  console.log('行パラメータ:', rowParam);
+  console.log('列パラメータ:', colParam);
+  
+  // 行・列の値を生成（設定範囲とステップサイズに基づく）
+  const rowRange = ranges[rowParam];
+  const colRange = ranges[colParam];
+  const rowValues = generateSteps(rowRange.min, rowRange.max, stepSize);
+  const colValues = generateSteps(colRange.min, colRange.max, stepSize);
+  
+  console.log(`行値生成: ${rowParam} ${rowRange.min}～${rowRange.max} ステップ${stepSize} → ${rowValues.length}個`);
+  console.log(`列値生成: ${colParam} ${colRange.min}～${colRange.max} ステップ${stepSize} → ${colValues.length}個`);
+  
+  // セルの値を計算（出力パラメータの値）
+  const cellValues: (number | null)[][] = [];
+  let calculatedCount = 0;
+  let rangeOutCount = 0;
+  
+  for (let rowIndex = 0; rowIndex < rowValues.length; rowIndex++) {
+    const row: (number | null)[] = [];
+    const rowValue = rowValues[rowIndex];
+    
+    for (let colIndex = 0; colIndex < colValues.length; colIndex++) {
+      const colValue = colValues[colIndex];
+      
+      try {
+        // 3つのパラメータから出力パラメータを計算
+        const inputValues: Partial<ExposureValues> = {};
+        inputValues[fixedParam] = baseValues[fixedParam];
+        inputValues[rowParam] = rowValue;
+        inputValues[colParam] = colValue;
+        
+        const calculatedValue = calculateMissingValue(inputValues as ExposureValues, outputParam);
+        
+        // 出力パラメータが範囲内かチェック
+        const outputRange = ranges[outputParam];
+        if (calculatedValue >= outputRange.min && calculatedValue <= outputRange.max) {
+          row.push(calculatedValue);
+          calculatedCount++;
+        } else {
+          row.push(null); // 範囲外
+          rangeOutCount++;
+        }
+      } catch {
+        row.push(null); // 計算エラー
+        rangeOutCount++;
+      }
+    }
+    
+    cellValues.push(row);
+  }
+  
+  console.log(`セル計算完了: 有効${calculatedCount}個, 範囲外/エラー${rangeOutCount}個`);
+  console.log('=== マトリックス表生成完了 ===');
+  
+  return {
+    fixedParam,
+    outputParam,
+    rowParam,
+    colParam,
+    rowValues,
+    colValues,
+    cellValues
+  };
 }

@@ -7,7 +7,7 @@ import {
   formatFNumber,
   formatISO,
   generate1DTableData,
-  generateSteps,
+  generateMatrixTableData,
   parseCommonFNumber,
   parseCommonShutterSpeed,
   parseCommonISO,
@@ -22,7 +22,7 @@ import {
 } from './exposureUtils';
 import './ExposureCalculator.css';
 
-type CalculationMode = 'single' | 'table1D' | 'table2D' | 'matrix2D';
+type CalculationMode = 'single' | 'table1D' | 'matrix2D';
 
 const ExposureCalculator: React.FC = () => {
   const [mode, setMode] = useState<CalculationMode>('single');
@@ -54,6 +54,10 @@ const ExposureCalculator: React.FC = () => {
   const [selectedParam1, setSelectedParam1] = useState<keyof ExposureValues>('av');
   const [selectedParam2, setSelectedParam2] = useState<keyof ExposureValues>('tv');
 
+  // マトリックス表用の新しい状態管理
+  const [matrixFixedParam, setMatrixFixedParam] = useState<keyof ExposureValues>('iso');
+  const [matrixOutputParam, setMatrixOutputParam] = useState<keyof ExposureValues>('ev');
+
   // パラメータ1が変更された時、パラメータ2が重複しないようにする
   useEffect(() => {
     if (selectedParam1 === selectedParam2) {
@@ -64,6 +68,17 @@ const ExposureCalculator: React.FC = () => {
       }
     }
   }, [selectedParam1, selectedParam2]);
+
+  // マトリックス表のパラメータが重複しないようにする
+  useEffect(() => {
+    if (matrixFixedParam === matrixOutputParam) {
+      const allParams: (keyof ExposureValues)[] = ['ev', 'av', 'tv', 'iso'];
+      const availableParams = allParams.filter(param => param !== matrixFixedParam);
+      if (availableParams.length > 0) {
+        setMatrixOutputParam(availableParams[0]);
+      }
+    }
+  }, [matrixFixedParam, matrixOutputParam]);
   const [calculatedParam, setCalculatedParam] = useState<keyof ExposureValues>('ev');
   const [showEVTable, setShowEVTable] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -145,124 +160,23 @@ const ExposureCalculator: React.FC = () => {
       newFixed[selectedParam1] = true;
       newFixed[selectedParam2] = true;
       setFixedParams(newFixed);
-    } else if (mode === 'table2D' && fixedCount !== 1) {
-      // 1 input → 3 outputs: 1つを固定
+    } else if (mode === 'matrix2D' && fixedCount !== 1) {
+      // 1 input → 3 outputs: 1つを固定（マトリックス表の固定パラメータ）
       const newFixed = { ev: false, av: false, tv: false, iso: false };
-      newFixed[selectedParam1] = true;
+      newFixed[matrixFixedParam] = true;
       setFixedParams(newFixed);
     }
-  }, [mode, calculatedParam, selectedParam1, selectedParam2, fixedCount, fixedParams]);
+  }, [mode, calculatedParam, selectedParam1, selectedParam2, matrixFixedParam, fixedCount, fixedParams]);
 
-  // 2D テーブル生成
-  const generate2DTable = () => {
-    const steps = generateSteps(ranges[selectedParam1].min, ranges[selectedParam1].max, stepConfig.stepSize);
-    const remainingParams = Object.keys(values).filter(
-      key => key !== selectedParam1
-    ) as Array<keyof ExposureValues>;
-    
-    const table: Array<{ fixedValue: number; results: Partial<ExposureValues>; hasValidValues: boolean }> = [];
-    const seenCombinations = new Set<string>(); // 重複チェック用
-    
-    for (const val of steps) {
-      try {
-        const testValues = { ...values };
-        testValues[selectedParam1] = val;
-        
-        const results: Partial<ExposureValues> = { ...testValues };
-        
-        for (const param of remainingParams) {
-          results[param] = calculateMissingValue(testValues, param);
-        }
-        
-        // 範囲チェック：計算された値がすべて範囲内にあるかチェック
-        let allInRange = true;
-        for (const param of remainingParams) {
-          if (results[param] === undefined || !isValueInRange(param, results[param]!, ranges)) {
-            allInRange = false;
-            break;
-          }
-        }
-        
-        // すべての計算値が範囲内にある場合のみテーブルに追加
-        if (allInRange) {
-          // 重複チェック用のキーを生成（計算された値のみを使用）
-          const resultKey = remainingParams
-            .map(param => `${param}:${results[param]!.toFixed(3)}`)
-            .sort()
-            .join('|');
-          
-          if (!seenCombinations.has(resultKey)) {
-            seenCombinations.add(resultKey);
-            table.push({ fixedValue: val, results, hasValidValues: true });
-          }
-        }
-      } catch {
-        // 計算できない値はスキップ
-      }
-    }
-    
-    return table;
-  };
-
-  // 真の2次元表生成（マトリックス形式）
-  const generate2DMatrixTable = () => {
-    const fixedParam = selectedParam1;
-    const fixedValue = values[fixedParam];
-    
-    // 残りの3つのパラメータから2つを選んで行・列にする
-    const remainingParams = Object.keys(values).filter(key => key !== fixedParam) as Array<keyof ExposureValues>;
-    const rowParam = remainingParams[0];
-    const colParam = remainingParams[1];
-    const resultParam = remainingParams[2];
-    
-    const rowSteps = generateSteps(ranges[rowParam].min, ranges[rowParam].max, stepConfig.stepSize);
-    const colSteps = generateSteps(ranges[colParam].min, ranges[colParam].max, stepConfig.stepSize);
-    
-    const matrix: Array<Array<{ value: number | null; isValid: boolean }>> = [];
-    
-    for (const rowValue of rowSteps.slice(0, 20)) { // 行数制限
-      const row: Array<{ value: number | null; isValid: boolean }> = [];
-      
-      for (const colValue of colSteps.slice(0, 15)) { // 列数制限
-        try {
-          const testValues = { ...values };
-          testValues[fixedParam] = fixedValue;
-          testValues[rowParam] = rowValue;
-          testValues[colParam] = colValue;
-          
-          const result = calculateMissingValue(testValues, resultParam);
-          row.push({ value: result, isValid: true });
-        } catch {
-          row.push({ value: null, isValid: false });
-        }
-      }
-      
-      matrix.push(row);
-    }
-    
-    return {
-      matrix,
-      rowParam,
-      colParam,
-      resultParam,
-      rowSteps: rowSteps.slice(0, 20),
-      colSteps: colSteps.slice(0, 15),
-      fixedParam,
-      fixedValue
-    };
-  };
-
-  const formatValue = (param: keyof ExposureValues, value: number) => {
-    switch (param) {
-      case 'ev':
-        return `EV ${value.toFixed(1)}`;
-      case 'av':
-        return formatFNumber(value);
-      case 'tv':
-        return formatShutterSpeed(value);
-      case 'iso':
-        return formatISO(value);
-    }
+  // マトリックス表生成（新仕様）
+  const generateNewMatrixTable = () => {
+    return generateMatrixTableData(
+      matrixFixedParam,
+      matrixOutputParam,
+      values,
+      ranges,
+      stepConfig.stepSize
+    );
   };
 
   // EV値の簡潔な表示（表内用）
@@ -396,7 +310,7 @@ const ExposureCalculator: React.FC = () => {
     <div className="exposure-calculator">
       <h1>露出計算機</h1>
       
-      <div className={`main-content ${mode === 'single' ? 'single-mode' : ''}`}>
+      <div className={`main-content ${mode === 'single' ? 'single-mode' : mode === 'matrix2D' ? 'matrix-mode' : ''}`}>
         {/* 左のカラム：コントロール */}
         <div className="controls-column">
           {/* モード選択 */}
@@ -423,20 +337,11 @@ const ExposureCalculator: React.FC = () => {
             <label>
               <input
                 type="radio"
-                value="table2D"
-                checked={mode === 'table2D'}
-                onChange={(e) => setMode(e.target.value as CalculationMode)}
-              />
-              2次元表 (1入力 → 3出力)
-            </label>
-            <label>
-              <input
-                type="radio"
                 value="matrix2D"
                 checked={mode === 'matrix2D'}
                 onChange={(e) => setMode(e.target.value as CalculationMode)}
               />
-              マトリックス表 (行×列の2次元表)
+              マトリックス表 (1固定 → 1出力, 行×列)
             </label>
           </div>
 
@@ -473,23 +378,30 @@ const ExposureCalculator: React.FC = () => {
               </div>
             )}
 
-            {(mode === 'table2D' || mode === 'matrix2D') && (
+            {mode === 'matrix2D' && (
               <div className="param-selection">
-                <h3>固定パラメータ選択</h3>
+                <h3>パラメータ選択</h3>
                 <label>
                   固定パラメータ:
-                  <select value={selectedParam1} onChange={(e) => setSelectedParam1(e.target.value as keyof ExposureValues)}>
+                  <select value={matrixFixedParam} onChange={(e) => setMatrixFixedParam(e.target.value as keyof ExposureValues)}>
                     <option value="ev">EV (露出値)</option>
                     <option value="av">AV (絞り値)</option>
                     <option value="tv">TV (シャッター速度)</option>
                     <option value="iso">ISO (感度)</option>
                   </select>
                 </label>
-                {mode === 'matrix2D' && (
-                  <div className="param-note">
-                    ※ 残り3つのパラメータから自動的に行・列・結果が決定されます
-                  </div>
-                )}
+                <label>
+                  出力パラメータ:
+                  <select value={matrixOutputParam} onChange={(e) => setMatrixOutputParam(e.target.value as keyof ExposureValues)}>
+                    <option value="ev" disabled={matrixFixedParam === 'ev'}>EV (露出値)</option>
+                    <option value="av" disabled={matrixFixedParam === 'av'}>AV (絞り値)</option>
+                    <option value="tv" disabled={matrixFixedParam === 'tv'}>TV (シャッター速度)</option>
+                    <option value="iso" disabled={matrixFixedParam === 'iso'}>ISO (感度)</option>
+                  </select>
+                </label>
+                <div className="param-note">
+                  ※ 残り2つのパラメータが行・列軸になります
+                </div>
               </div>
             )}
 
@@ -511,14 +423,15 @@ const ExposureCalculator: React.FC = () => {
             {Object.entries(values).map(([param, value]) => {
               const isInputParam = mode === 'single' ? param !== calculatedParam : 
                                   mode === 'table1D' ? (param === selectedParam1 || param === selectedParam2) :
-                                  (mode === 'table2D' || mode === 'matrix2D') ? param === selectedParam1 : false;
+                                  mode === 'matrix2D' ? param === selectedParam1 : false;
               
               const isOutputParam = mode === 'single' && param === calculatedParam;
               
               // 1Dテーブルモードでは固定パラメータのみ表示
+              // マトリックス表モードでは固定パラメータのみ表示
               const shouldShowParam = mode === 'single' ? true :
                                      mode === 'table1D' ? (param === selectedParam1 || param === selectedParam2) :
-                                     (mode === 'table2D' || mode === 'matrix2D') ? param === selectedParam1 : true;
+                                     mode === 'matrix2D' ? param === matrixFixedParam : true;
               
               if (!shouldShowParam) {
                 return null;
@@ -872,74 +785,48 @@ const ExposureCalculator: React.FC = () => {
                 );
               })()}
 
-            {mode === 'table2D' && (
-              <div className="table-2d">
-                <h3>2次元表 (固定: {formatValue(selectedParam1, values[selectedParam1])})</h3>
-                <div className="table-container">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>{getParamLabel(selectedParam1)}</th>
-                        {Object.keys(values).filter(key => key !== selectedParam1).map(param => (
-                          <th key={param}>{getParamLabel(param as keyof ExposureValues)}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {generate2DTable().slice(0, 30).map((row, index) => (
-                        <tr key={index}>
-                          <td>{formatValue(selectedParam1, row.fixedValue)}</td>
-                          {Object.keys(values).filter(key => key !== selectedParam1).map(param => {
-                            const value = row.results[param as keyof ExposureValues];
-                            
-                            return (
-                              <td key={param}>
-                                {value !== undefined ? (
-                                  formatValue(param as keyof ExposureValues, value)
-                                ) : 'N/A'}
-                              </td>
-                            );
-                          })}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
             {mode === 'matrix2D' && (() => {
-              const matrixData = generate2DMatrixTable();
+              const matrixData = generateNewMatrixTable();
+              
+              // EV値の場合は言語的表現も含める
+              const formatValueWithDescription = (param: keyof ExposureValues, value: number) => {
+                if (param === 'ev') {
+                  // formatSimpleValueは既にEV=12(曇り)の形式で返すので、そのまま使用
+                  return formatSimpleValue(param, value);
+                }
+                return formatSimpleValue(param, value);
+              };
+              
               return (
                 <div className="table-matrix">
                   <h3>マトリックス表</h3>
-                  <div className="matrix-info">
-                    固定: {formatValue(matrixData.fixedParam, matrixData.fixedValue)} | 
-                    行: {getParamLabel(matrixData.rowParam)} | 
-                    列: {getParamLabel(matrixData.colParam)} | 
-                    結果: {getParamLabel(matrixData.resultParam)}
+                  <div className="matrix-info-header">
+                    <h4>
+                      固定: {formatValueWithDescription(matrixData.fixedParam, values[matrixData.fixedParam])} → 
+                      出力: {getParamLabel(matrixData.outputParam)}
+                    </h4>
                   </div>
-                  <div className="table-container">
-                    <table>
+                  <div className="table-container matrix-table-container">
+                    <table className="matrix-table">
                       <thead>
                         <tr>
-                          <th>{getParamLabel(matrixData.rowParam)} \ {getParamLabel(matrixData.colParam)}</th>
-                          {matrixData.colSteps.map((colValue, index) => (
-                            <th key={index}>{formatValue(matrixData.colParam, colValue)}</th>
+                          <th className="axis-label"></th>
+                          {matrixData.colValues.map((colValue, index) => (
+                            <th key={index}>{formatSimpleValue(matrixData.colParam, colValue)}</th>
                           ))}
                         </tr>
                       </thead>
                       <tbody>
-                        {matrixData.matrix.map((row, rowIndex) => (
+                        {matrixData.cellValues.map((row, rowIndex) => (
                           <tr key={rowIndex}>
                             <td className="row-header">
-                              {formatValue(matrixData.rowParam, matrixData.rowSteps[rowIndex])}
+                              {formatSimpleValue(matrixData.rowParam, matrixData.rowValues[rowIndex])}
                             </td>
-                            {row.map((cell, colIndex) => (
-                              <td key={colIndex} className={cell.isValid ? '' : 'invalid-cell'}>
-                                {cell.isValid && cell.value !== null 
-                                  ? formatValue(matrixData.resultParam, cell.value)
-                                  : 'N/A'}
+                            {row.map((cellValue, colIndex) => (
+                              <td key={colIndex} className={cellValue !== null ? 'cell-value' : 'invalid-cell'}>
+                                {cellValue !== null 
+                                  ? formatValueWithDescription(matrixData.outputParam, cellValue)
+                                  : ''}
                               </td>
                             ))}
                           </tr>

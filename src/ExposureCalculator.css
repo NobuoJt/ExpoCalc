@@ -3,6 +3,13 @@
   margin: 0 auto;
   padding: 20px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  box-sizing: border-box;
+}
+
+.exposure-calculator *,
+.exposure-calculator *::before,
+.exposure-calculator *::after {
+  box-sizing: border-box;
 }
 
 .exposure-calculator h1 {
@@ -24,8 +31,18 @@
   grid-template-columns: 1fr;
 }
 
+/* マトリックス表モードでは結果カラムの幅を拡張 */
+.main-content.matrix-mode {
+  grid-template-columns: 350px 1fr;
+}
+
 .results-column {
   min-width: 0; /* グリッドアイテムのオーバーフロー対応 */
+}
+
+/* 表セクションの背景 */
+.table-section {
+  background: white;
 }
 
 .controls-column {
@@ -221,13 +238,65 @@
 
 .value-input-row {
   display: grid;
-  grid-template-columns: 100px 120px 240px;
+  grid-template-columns: 100px 120px 1fr;
   align-items: center;
   gap: 10px;
 }
 
 .value-input-row.detailed {
-  grid-template-columns: 100px 120px 80px 80px 240px;
+  display: grid;
+  grid-template-columns: 100px 120px 80px 80px 1fr;
+  align-items: center;
+  gap: 10px;
+}
+
+/* マトリックス表モードでのみFlexレイアウトを適用 */
+.main-content.matrix-mode .value-input-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+}
+
+.main-content.matrix-mode .value-input-row.detailed {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+}
+
+.main-content.matrix-mode .value-input-row .param-label {
+  min-width: 100px;
+  flex-shrink: 0;
+}
+
+.main-content.matrix-mode .value-input-row .value-input {
+  min-width: 120px;
+  flex-shrink: 0;
+}
+
+.main-content.matrix-mode .value-input-row.detailed .common-value {
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.main-content.matrix-mode .value-input-row.detailed .strict-value {
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.main-content.matrix-mode .value-input-row .brightness {
+  flex: 1;
+  min-width: 0;
+}
+
+.main-content.matrix-mode .value-input-row .step-buttons {
+  min-width: 220px;
+  flex-shrink: 0;
+  /* ラベルとinputが100px + 120px + gap = 130px以上を取っている場合、
+     220pxのボタンエリアが入り切らない時は下に折り返される */
 }
 
 .param-label {
@@ -294,6 +363,8 @@
   flex-wrap: wrap;
   justify-content: flex-end;
   align-items: center;
+  max-width: 100%;
+  min-width: 220px; /* 最小幅を保証 */
 }
 
 .step-button {
@@ -472,6 +543,8 @@
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  width: 100%;
+  max-width: 100%;
 }
 
 .table-scroll {
@@ -483,6 +556,7 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
+  min-width: 300px; /* paddingを考慮した調整 */
 }
 
 .table-container thead {
@@ -791,9 +865,139 @@
   font-weight: bold;
 }
 
-/* レスポンシブデザイン */
+/* マトリックス表専用スタイル */
+.matrix-info-header h4 {
+  color: #007acc;
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.matrix-table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: auto;
+  max-height: 70vh;
+  width: 100%;
+  max-width: 100%;
+}
+
+.matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  min-width: 300px; /* paddingを考慮した調整 */
+}
+
+.matrix-table thead {
+  position: sticky;
+  top: 0;
+  background: #007acc;
+  z-index: 10;
+}
+
+.matrix-table th {
+  background: #007acc;
+  color: white;
+  padding: 4px 3px;
+  text-align: center;
+  font-weight: 600;
+  border-right: 1px solid #005fa3;
+  white-space: nowrap;
+  font-size: 9px;
+}
+
+.matrix-table th.axis-label {
+  position: sticky;
+  left: 0;
+  z-index: 11;
+  background: #1976d2;
+  color: white;
+  font-style: italic;
+  text-align: center;
+  min-width: 0px;
+  max-width: 0px;
+  font-size: 8px;
+  line-height: 1.2;
+  padding: 4px 2px;
+}
+
+.matrix-table td {
+  padding: 4px 2px;
+  text-align: center;
+  border-right: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  white-space: nowrap;
+  font-size: 9px;
+}
+
+.matrix-table td.row-header {
+  position: sticky;
+  left: 0;
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+  z-index: 9;
+  border-right: 2px solid #007acc;
+  min-width: 60px;
+  max-width: 80px;
+  font-size: 9px;
+  padding: 4px 2px;
+}
+
+.matrix-table td.cell-value {
+  background: #fff;
+  color: #333;
+  font-weight: 500;
+}
+
+.matrix-table td.invalid-cell {
+  background: #f5f5f5;
+  color: #ccc;
+}
+
+.matrix-table tr:nth-child(even) td:not(.row-header) {
+  background: #fafafa;
+}
+
+.matrix-table tr:hover td:not(.row-header) {
+  background: #e3f2fd;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .matrix-table-container {
+    width: 100%;
+    max-width: calc(100vw - 40px); /* ビューポート幅からpadding分を差し引く */
+  }
+  
+  .matrix-table {
+    min-width: calc(100vw - 60px); /* より余裕を持った計算 */
+  }
+  
+  .matrix-table th.axis-label,
+  .matrix-table td.row-header {
+    min-width: 60px;
+    max-width: 80px;
+    font-size: 8px;
+  }
+  
+  .matrix-table th {
+    padding: 3px 2px;
+    font-size: 8px;
+  }
+  
+  .matrix-table td {
+    padding: 3px 1px;
+    font-size: 8px;
+  }
+}
+
 @media (max-width: 1024px) {
-  .main-content {
+  .main-content,
+  .main-content.matrix-mode {
     grid-template-columns: 1fr;
     gap: 20px;
   }
@@ -810,12 +1014,36 @@
   }
   
   .value-input-row {
-    grid-template-columns: 80px 100px 60px 60px 200px;
+    grid-template-columns: 80px 100px 1fr;
     gap: 6px;
+  }
+  
+  .value-input-row.detailed {
+    grid-template-columns: 80px 100px 60px 60px 1fr;
+    gap: 6px;
+  }
+  
+  /* マトリックス表モードでのFlexレイアウト調整 */
+  .main-content.matrix-mode .value-input_row .param-label {
+    min-width: 80px;
+  }
+  
+  .main-content.matrix-mode .value-input_row .value-input {
+    min-width: 100px;
+  }
+  
+  .main-content.matrix-mode .value-input_row.detailed .common-value,
+  .main-content.matrix-mode .value-input_row.detailed .strict-value {
+    min-width: 60px;
   }
   
   .step-buttons {
     gap: 1px;
+    min-width: 180px;
+  }
+  
+  .main-content.matrix-mode .step-buttons {
+    min-width: 180px;
   }
   
   .step-button {
@@ -825,12 +1053,15 @@
   }
   
   .table-container {
-    font-size: 11px;
+    font-size: 9px;
+    width: 100%;
+    max-width: calc(100vw - 40px);
   }
   
   .table-container th,
   .table-container td {
-    padding: 6px 4px;
+    padding: 3px 2px;
+    font-size: 9px;
   }
 }
 
@@ -839,9 +1070,31 @@
     font-size: 24px;
   }
   
-  .value-input-row {
+  .value-input-row,
+  .value-input-row.detailed {
     grid-template-columns: 1fr;
     gap: 8px;
+  }
+  
+  /* マトリックス表モードでのFlexレイアウト調整 */
+  .main-content.matrix-mode .value-input_row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .main-content.matrix-mode .value-input_row .param-label,
+  .main-content.matrix-mode .value-input_row .value-input,
+  .main-content.matrix-mode .value-input_row.detailed .common-value,
+  .main-content.matrix-mode .value-input_row.detailed .strict-value {
+    width: 100%;
+    min-width: auto;
+  }
+  
+  .main-content.matrix-mode .value-input_row .step-buttons {
+    width: 100%;
+    justify-content: center;
+    min-width: auto;
   }
   
   .step-buttons {
@@ -855,5 +1108,122 @@
   
   .section {
     padding: 15px;
+  }
+}
+
+/* iPhone SE (375px) 対応 */
+@media (max-width: 375px) {
+  .exposure-calculator {
+    padding: 8px;
+    box-sizing: border-box;
+  }
+  
+  .exposure-calculator h1 {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .section {
+    padding: 12px;
+    box-sizing: border-box;
+  }
+  
+  /* 表の詰め込み調整 */
+  .table-container,
+  .matrix-table-container {
+    width: 100%;
+    max-width: calc(100vw - 32px); /* 外側padding 8px × 2 + section padding 12px × 2 */
+    box-sizing: border-box;
+  }
+  
+  .table-container table,
+  .matrix-table {
+    min-width: calc(100vw - 52px); /* さらに余裕を持った計算 */
+    font-size: 10px;
+  }
+  
+  .table-container th,
+  .table-container td {
+    padding: 4px 2px;
+    font-size: 10px;
+  }
+  
+  .matrix-table th {
+    padding: 2px 1px;
+    font-size: 7px;
+  }
+  
+  .matrix-table td {
+    padding: 2px 1px;
+    font-size: 7px;
+  }
+  
+  .matrix-table th.axis-label,
+  .matrix-table td.row-header {
+    min-width: 40px;
+    max-width: 50px;
+    font-size: 7px;
+  }
+  
+  /* コントロールの調整 */
+  .step-button {
+    min-width: 24px;
+    padding: 2px 4px;
+    font-size: 9px;
+  }
+  
+  .value-input {
+    font-size: 12px;
+    padding: 4px;
+    box-sizing: border-box;
+  }
+  
+  .param-label {
+    font-size: 12px;
+  }
+}
+
+/* 非常に小さい画面 (320px) 対応 */
+@media (max-width: 320px) {
+  .exposure-calculator {
+    padding: 4px;
+    box-sizing: border-box;
+  }
+  
+  .section {
+    padding: 8px;
+    box-sizing: border-box;
+  }
+  
+  .table-container,
+  .matrix-table-container {
+    width: 100%;
+    max-width: calc(100vw - 24px); /* 外側padding 4px × 2 + section padding 8px × 2 */
+    box-sizing: border-box;
+  }
+  
+  .table-container table,
+  .matrix-table {
+    min-width: calc(100vw - 44px);
+    font-size: 8px;
+  }
+  
+  .matrix-table th.axis-label,
+  .matrix-table td.row-header {
+    min-width: 30px;
+    max-width: 35px;
+    font-size: 6px;
+  }
+  
+  .matrix-table th,
+  .matrix-table td {
+    padding: 1px;
+    font-size: 6px;
+  }
+  
+  .table-container th,
+  .table-container td {
+    padding: 2px 1px;
+    font-size: 8px;
   }
 }
