@@ -157,7 +157,7 @@ const ExposureCalculator: React.FC = () => {
     const steps1 = generateSteps(ranges[selectedParam1].min, ranges[selectedParam1].max, stepConfig.stepSize);
     const steps2 = generateSteps(ranges[selectedParam2].min, ranges[selectedParam2].max, stepConfig.stepSize);
     
-    const table: Array<{ param1: number; param2: number; results: Partial<ExposureValues> }> = [];
+    const table: Array<{ param1: number; param2: number; results: Partial<ExposureValues>; hasValidValues: boolean }> = [];
     
     for (const val1 of steps1) {
       for (const val2 of steps2) {
@@ -176,7 +176,19 @@ const ExposureCalculator: React.FC = () => {
             results[param] = calculateMissingValue(testValues, param);
           }
           
-          table.push({ param1: val1, param2: val2, results });
+          // 範囲チェック：計算された値がすべて範囲内にあるかチェック
+          let hasValidValues = false;
+          for (const param of remainingParams) {
+            if (results[param] !== undefined && isValueInRange(param, results[param]!, ranges)) {
+              hasValidValues = true;
+              break;
+            }
+          }
+          
+          // 少なくとも1つの値が範囲内にある行のみを含める
+          if (hasValidValues) {
+            table.push({ param1: val1, param2: val2, results, hasValidValues });
+          }
         } catch {
           // 計算できない組み合わせはスキップ
         }
@@ -193,7 +205,7 @@ const ExposureCalculator: React.FC = () => {
       key => key !== selectedParam1
     ) as Array<keyof ExposureValues>;
     
-    const table: Array<{ fixedValue: number; results: Partial<ExposureValues> }> = [];
+    const table: Array<{ fixedValue: number; results: Partial<ExposureValues>; hasValidValues: boolean }> = [];
     
     for (const val of steps) {
       try {
@@ -206,7 +218,19 @@ const ExposureCalculator: React.FC = () => {
           results[param] = calculateMissingValue(testValues, param);
         }
         
-        table.push({ fixedValue: val, results });
+        // 範囲チェック：計算された値がすべて範囲内にあるかチェック
+        let hasValidValues = false;
+        for (const param of remainingParams) {
+          if (results[param] !== undefined && isValueInRange(param, results[param]!, ranges)) {
+            hasValidValues = true;
+            break;
+          }
+        }
+        
+        // 少なくとも1つの値が範囲内にある行のみを含める
+        if (hasValidValues) {
+          table.push({ fixedValue: val, results, hasValidValues });
+        }
       } catch {
         // 計算できない値はスキップ
       }
@@ -795,20 +819,21 @@ const ExposureCalculator: React.FC = () => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
                   <h3>
                     1次元表 - {formatValue(selectedParam1, values[selectedParam1])}, {formatValue(selectedParam2, values[selectedParam2])}
+                    {((selectedParam1 === 'ev') || (selectedParam2 === 'ev')) && (
+                      <span> ({getEVDescription(values.ev).split(' ')[0] })</span>
+                    )}
                   </h3>
                   <button 
                     className="toggle-detailed-values"
                     onClick={() => setShowUnifiedValues(!showUnifiedValues)}
                   >
-                    {showUnifiedValues ? '統一表現値を非表示' : '統一表現値を表示'}
+                    {showUnifiedValues ? '詳細値を非表示' : '詳細値を表示'}
                   </button>
                 </div>
                 <div className="table-container">
                   <table>
                     <thead>
                       <tr>
-                        <th>{getParamLabel(selectedParam1)}</th>
-                        <th>{getParamLabel(selectedParam2)}</th>
                         {Object.keys(values).filter(key => key !== selectedParam1 && key !== selectedParam2).map(param => (
                           <th key={param}>{getParamLabel(param as keyof ExposureValues)}</th>
                         ))}
@@ -817,30 +842,26 @@ const ExposureCalculator: React.FC = () => {
                     <tbody>
                       {generate1DTable().slice(0, 50).map((row, index) => (
                         <tr key={index}>
-                          <td>
-                            {formatValue(selectedParam1, row.param1)}
-                            {showUnifiedValues && (
-                              <div className="unified-value">({selectedParam1.toUpperCase()}={row.param1.toFixed(1)})</div>
-                            )}
-                          </td>
-                          <td>
-                            {formatValue(selectedParam2, row.param2)}
-                            {showUnifiedValues && (
-                              <div className="unified-value">({selectedParam2.toUpperCase()}={row.param2.toFixed(1)})</div>
-                            )}
-                          </td>
-                          {Object.keys(values).filter(key => key !== selectedParam1 && key !== selectedParam2).map(param => (
-                            <td key={param}>
-                              {row.results[param as keyof ExposureValues] !== undefined ? (
-                                <>
-                                  {formatValue(param as keyof ExposureValues, row.results[param as keyof ExposureValues]!)}
-                                  {showUnifiedValues && (
-                                    <div className="unified-value">({param.toUpperCase()}={row.results[param as keyof ExposureValues]!.toFixed(1)})</div>
-                                  )}
-                                </>
-                              ) : 'N/A'}
-                            </td>
-                          ))}
+                          {Object.keys(values).filter(key => key !== selectedParam1 && key !== selectedParam2).map(param => {
+                            const value = row.results[param as keyof ExposureValues];
+                            const isOutOfRange = value !== undefined && !isValueInRange(param as keyof ExposureValues, value, ranges);
+                            
+                            return (
+                              <td key={param} className={isOutOfRange ? 'out-of-range-cell' : ''}>
+                                {value !== undefined ? (
+                                  <>
+                                    {formatValue(param as keyof ExposureValues, value)}
+                                    {showUnifiedValues && (
+                                      <div className="unified-value">({param.toUpperCase()}={value.toFixed(1)})</div>
+                                    )}
+                                    {isOutOfRange && (
+                                      <div className="range-warning-cell">範囲外</div>
+                                    )}
+                                  </>
+                                ) : 'N/A'}
+                              </td>
+                            );
+                          })}
                         </tr>
                       ))}
                     </tbody>
@@ -866,13 +887,23 @@ const ExposureCalculator: React.FC = () => {
                       {generate2DTable().slice(0, 30).map((row, index) => (
                         <tr key={index}>
                           <td>{formatValue(selectedParam1, row.fixedValue)}</td>
-                          {Object.keys(values).filter(key => key !== selectedParam1).map(param => (
-                            <td key={param}>
-                              {row.results[param as keyof ExposureValues] !== undefined 
-                                ? formatValue(param as keyof ExposureValues, row.results[param as keyof ExposureValues]!)
-                                : 'N/A'}
-                            </td>
-                          ))}
+                          {Object.keys(values).filter(key => key !== selectedParam1).map(param => {
+                            const value = row.results[param as keyof ExposureValues];
+                            const isOutOfRange = value !== undefined && !isValueInRange(param as keyof ExposureValues, value, ranges);
+                            
+                            return (
+                              <td key={param} className={isOutOfRange ? 'out-of-range-cell' : ''}>
+                                {value !== undefined ? (
+                                  <>
+                                    {formatValue(param as keyof ExposureValues, value)}
+                                    {isOutOfRange && (
+                                      <div className="range-warning-cell">範囲外</div>
+                                    )}
+                                  </>
+                                ) : 'N/A'}
+                              </td>
+                            );
+                          })}
                         </tr>
                       ))}
                     </tbody>

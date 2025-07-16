@@ -271,12 +271,6 @@
   font-style: italic;
 }
 
-.ev-brightness {
-  font-family: system-ui, -apple-system, sans-serif;
-  color: #888;
-  font-size: 11px;
-  font-weight: normal;
-}
 
 .common-value {
   background: #f0f8f0;
@@ -718,6 +712,26 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* テーブル内の範囲外値表示 */
+.out-of-range-cell {
+  background: #fff3f3 !important;
+  border: 1px solid #ffb3b3 !important;
+  color: #c62828;
+  font-weight: bold;
+}
+
+.range-warning-cell {
+  background: #ffebee;
+  border: 1px solid #f8bbd9;
+  color: #c62828;
+  font-size: 9px;
+  font-weight: bold;
+  text-align: center;
+  padding: 2px;
+  margin-top: 2px;
+  border-radius: 2px;
 }
 
 /* 統一表現値表示 */
