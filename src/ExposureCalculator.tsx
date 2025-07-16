@@ -13,7 +13,9 @@ import {
   isNearCommonValue,
   formatCommonFNumber,
   formatCommonShutterSpeed,
-  formatCommonISO
+  formatCommonISO,
+  evToLux,
+  formatLux
 } from './exposureUtils';
 import './ExposureCalculator.css';
 
@@ -58,6 +60,53 @@ const ExposureCalculator: React.FC = () => {
   // 固定パラメータの数を数える
   const fixedCount = Object.values(fixedParams).filter(Boolean).length;
 
+  // 入力値が変更された際にリアルタイム計算を実行
+  const handleValueChange = (param: keyof ExposureValues, inputValue: string) => {
+    let newValue: number | null = null;
+    let warning = '';
+
+    // 一般表現からの変換を試行
+    if (param === 'av' && inputValue.toLowerCase().includes('f')) {
+      newValue = parseCommonFNumber(inputValue);
+      if (newValue === null) warning = 'f値の形式が正しくありません (例: f/2.8)';
+    } else if (param === 'tv' && (inputValue.includes('/') || inputValue.toLowerCase().includes('s'))) {
+      newValue = parseCommonShutterSpeed(inputValue);
+      if (newValue === null) warning = 'シャッター速度の形式が正しくありません (例: 1/125, 2s)';
+    } else if (param === 'iso' && inputValue.toLowerCase().includes('iso')) {
+      newValue = parseCommonISO(inputValue);
+      if (newValue === null) warning = 'ISO感度の形式が正しくありません (例: ISO400)';
+    } else {
+      // 数値として解析
+      const parsed = parseFloat(inputValue);
+      if (!isNaN(parsed)) newValue = parsed;
+    }
+
+    if (newValue !== null) {
+      const newValues = { ...values, [param]: newValue };
+      setValues(newValues);
+      
+      // 単一計算モードの場合はリアルタイム計算
+      if (mode === 'single' && param !== calculatedParam) {
+        try {
+          const knownValues: Partial<ExposureValues> = { ...newValues };
+          delete knownValues[calculatedParam];
+          
+          const result = calculateMissingValue(knownValues, calculatedParam);
+          setValues(prev => ({ ...prev, [calculatedParam]: result }));
+        } catch (error) {
+          console.error('リアルタイム計算エラー:', error);
+        }
+      }
+      
+      // 一般表現での警告チェック
+      if (!isNearCommonValue(param, newValue)) {
+        warning = 'この値は一般的なカメラ設定値ではありません';
+      }
+    }
+
+    setInputWarnings(prev => ({ ...prev, [param]: warning }));
+  };
+
   // 計算モードに応じて固定パラメータを自動調整
   useEffect(() => {
     if (mode === 'single' && fixedCount !== 3) {
@@ -83,19 +132,6 @@ const ExposureCalculator: React.FC = () => {
       setFixedParams(newFixed);
     }
   }, [mode, calculatedParam, selectedParam1, selectedParam2, fixedCount, fixedParams]);
-
-  // 単一計算
-  const performCalculation = (target: keyof ExposureValues) => {
-    try {
-      const knownValues: Partial<ExposureValues> = { ...values };
-      delete knownValues[target]; // 計算対象の値を除外
-      
-      const result = calculateMissingValue(knownValues, target);
-      setValues(prev => ({ ...prev, [target]: result }));
-    } catch (error) {
-      console.error('計算エラー:', error);
-    }
-  };
 
   // 1D テーブル生成
   const generate1DTable = () => {
@@ -221,6 +257,19 @@ const ExposureCalculator: React.FC = () => {
     }
   };
 
+  const formatStrictValue = (param: keyof ExposureValues, value: number) => {
+    switch (param) {
+      case 'ev':
+        return formatLux(evToLux(value));
+      case 'av':
+        return formatFNumber(value);
+      case 'tv':
+        return formatShutterSpeed(value);
+      case 'iso':
+        return formatISO(value);
+    }
+  };
+
   const getParamLabel = (param: keyof ExposureValues) => {
     switch (param) {
       case 'ev': return 'EV (露出値)';
@@ -262,39 +311,6 @@ const ExposureCalculator: React.FC = () => {
     return false;
   };
 
-  // 値の入力処理（一般表現対応）
-  const handleValueChange = (param: keyof ExposureValues, inputValue: string) => {
-    let newValue: number | null = null;
-    let warning = '';
-
-    // 一般表現からの変換を試行
-    if (param === 'av' && inputValue.toLowerCase().includes('f')) {
-      newValue = parseCommonFNumber(inputValue);
-      if (newValue === null) warning = 'f値の形式が正しくありません (例: f/2.8)';
-    } else if (param === 'tv' && (inputValue.includes('/') || inputValue.toLowerCase().includes('s'))) {
-      newValue = parseCommonShutterSpeed(inputValue);
-      if (newValue === null) warning = 'シャッター速度の形式が正しくありません (例: 1/125, 2s)';
-    } else if (param === 'iso' && inputValue.toLowerCase().includes('iso')) {
-      newValue = parseCommonISO(inputValue);
-      if (newValue === null) warning = 'ISO感度の形式が正しくありません (例: ISO400)';
-    } else {
-      // 数値として解析
-      const parsed = parseFloat(inputValue);
-      if (!isNaN(parsed)) newValue = parsed;
-    }
-
-    if (newValue !== null) {
-      setValues(prev => ({ ...prev, [param]: newValue! }));
-      
-      // 一般表現での警告チェック
-      if (!isNearCommonValue(param, newValue)) {
-        warning = 'この値は一般的なカメラ設定値ではありません';
-      }
-    }
-
-    setInputWarnings(prev => ({ ...prev, [param]: warning }));
-  };
-
   // 一般表現での表示を取得
   const getCommonValueDisplay = (param: keyof ExposureValues, value: number): string => {
     switch (param) {
@@ -325,7 +341,7 @@ const ExposureCalculator: React.FC = () => {
     <div className="exposure-calculator">
       <h1>露出計算機</h1>
       
-      <div className="main-content">
+      <div className={`main-content ${mode === 'single' ? 'single-mode' : ''}`}>
         {/* 左のカラム：コントロール */}
         <div className="controls-column">
           {/* モード選択 */}
@@ -375,48 +391,50 @@ const ExposureCalculator: React.FC = () => {
             
             {/* モードに応じた固定パラメータ選択 */}
             {mode === 'single' && (
-              <div className="param-selection">
-                <h3>計算対象パラメータ</h3>
-                <label>
-                  <input 
-                    type="radio" 
-                    name="targetParam" 
-                    value="ev" 
-                    checked={calculatedParam === 'ev'}
-                    onChange={(e) => setCalculatedParam(e.target.value as keyof ExposureValues)}
-                  />
-                  EV値を計算
-                </label>
-                <label>
-                  <input 
-                    type="radio" 
-                    name="targetParam" 
-                    value="av" 
-                    checked={calculatedParam === 'av'}
-                    onChange={(e) => setCalculatedParam(e.target.value as keyof ExposureValues)}
-                  />
-                  絞り値を計算
-                </label>
-                <label>
-                  <input 
-                    type="radio" 
-                    name="targetParam" 
-                    value="tv" 
-                    checked={calculatedParam === 'tv'}
-                    onChange={(e) => setCalculatedParam(e.target.value as keyof ExposureValues)}
-                  />
-                  シャッター速度を計算
-                </label>
-                <label>
-                  <input 
-                    type="radio" 
-                    name="targetParam" 
-                    value="iso" 
-                    checked={calculatedParam === 'iso'}
-                    onChange={(e) => setCalculatedParam(e.target.value as keyof ExposureValues)}
-                  />
-                  ISO感度を計算
-                </label>
+              <div className="param-selection single-calc">
+                <h3>計算対象</h3>
+                <div className="radio-group-horizontal">
+                  <label>
+                    <input 
+                      type="radio" 
+                      name="targetParam" 
+                      value="ev" 
+                      checked={calculatedParam === 'ev'}
+                      onChange={(e) => setCalculatedParam(e.target.value as keyof ExposureValues)}
+                    />
+                    EV
+                  </label>
+                  <label>
+                    <input 
+                      type="radio" 
+                      name="targetParam" 
+                      value="av" 
+                      checked={calculatedParam === 'av'}
+                      onChange={(e) => setCalculatedParam(e.target.value as keyof ExposureValues)}
+                    />
+                    絞り
+                  </label>
+                  <label>
+                    <input 
+                      type="radio" 
+                      name="targetParam" 
+                      value="tv" 
+                      checked={calculatedParam === 'tv'}
+                      onChange={(e) => setCalculatedParam(e.target.value as keyof ExposureValues)}
+                    />
+                    SS
+                  </label>
+                  <label>
+                    <input 
+                      type="radio" 
+                      name="targetParam" 
+                      value="iso" 
+                      checked={calculatedParam === 'iso'}
+                      onChange={(e) => setCalculatedParam(e.target.value as keyof ExposureValues)}
+                    />
+                    ISO
+                  </label>
+                </div>
               </div>
             )}
 
@@ -470,8 +488,10 @@ const ExposureCalculator: React.FC = () => {
                                   mode === 'table1D' ? (param === selectedParam1 || param === selectedParam2) :
                                   (mode === 'table2D' || mode === 'matrix2D') ? param === selectedParam1 : false;
               
+              const isOutputParam = mode === 'single' && param === calculatedParam;
+              
               return (
-                <div key={param} className="parameter-row">
+                <div key={param} className={`parameter-row ${isOutputParam ? 'output-param' : ''}`}>
                   <div className="value-input-row">
                     <label className="param-label">{getParamLabel(param as keyof ExposureValues)}:</label>
                     <input
@@ -496,10 +516,8 @@ const ExposureCalculator: React.FC = () => {
                       className="common-value"
                     />
                     <div className="strict-value">
-                      {formatValue(param as keyof ExposureValues, value)}
-                      {param === 'ev' && (
-                        <span className="ev-brightness"> - {getEVDescription(value).split(' ').slice(1).join(' ')}</span>
-                      )}
+                      {formatStrictValue(param as keyof ExposureValues, value)}
+
                     </div>
                     <div className="step-buttons">
                       <button 
@@ -660,24 +678,11 @@ const ExposureCalculator: React.FC = () => {
 
         {/* 右のカラム：計算結果・表示エリア */}
         <div className="results-column">
-          <div className="section table-section">
-            <h2>計算結果</h2>
-            
-            {mode === 'single' && (
-              <div className="single-result">
-                <button 
-                  className="calculate-button"
-                  onClick={() => performCalculation(calculatedParam)}
-                >
-                  {getParamLabel(calculatedParam)}を計算
-                </button>
-                <div className="result-display">
-                  <strong>{getParamLabel(calculatedParam)}: {formatValue(calculatedParam, values[calculatedParam])}</strong>
-                </div>
-              </div>
-            )}
-
-            {mode === 'table1D' && (
+          {mode !== 'single' && (
+            <div className="section table-section">
+              <h2>計算結果</h2>
+              
+              {mode === 'table1D' && (
               <div className="table-1d">
                 <h3>1次元表</h3>
                 <div className="table-container">
@@ -785,7 +790,8 @@ const ExposureCalculator: React.FC = () => {
                 </div>
               );
             })()}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

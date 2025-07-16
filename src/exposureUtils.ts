@@ -44,6 +44,21 @@ export function getEVDescription(ev: number): string {
   return "極度に暗い";
 }
 
+// EV値からlux値を計算（近似値）
+export function evToLux(ev: number): number {
+  // EV値とlux値の関係: lux = 2.5 * 2^EV (近似)
+  return 2.5 * Math.pow(2, ev);
+}
+
+// lux値をフォーマット
+export function formatLux(lux: number): string {
+  if (lux >= 1000) {
+    return `${(lux / 1000).toFixed(1)}kLux`;
+  } else {
+    return `${lux.toFixed(1)}Lux`;
+  }
+}
+
 // AV値からf値を取得
 export function avToFNumber(av: number): number {
   return Math.pow(2, av / 2);

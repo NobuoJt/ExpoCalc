@@ -19,6 +19,11 @@
   align-items: start;
 }
 
+/* 単一計算モードでは1カラム */
+.main-content.single-mode {
+  grid-template-columns: 1fr;
+}
+
 .results-column {
   min-width: 0; /* グリッドアイテムのオーバーフロー対応 */
 }
@@ -143,6 +148,30 @@
   background: white;
 }
 
+.param-selection.single-calc {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+}
+
+.radio-group-horizontal {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.radio-group-horizontal label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.radio-group-horizontal input[type="radio"] {
+  margin-right: 5px;
+}
+
 .param-note {
   margin-top: 10px;
   font-size: 12px;
@@ -153,6 +182,14 @@
 /* パラメータ行 */
 .parameter-row {
   margin-bottom: 15px;
+  transition: background-color 0.2s;
+}
+
+.parameter-row.output-param {
+  background: #fff9c4;
+  border: 1px solid #f9f2a1;
+  border-radius: 6px;
+  padding: 8px;
 }
 
 .value-input-row {
@@ -183,7 +220,7 @@
 }
 
 .strict-value {
-  background: #fff;
+  background: #f5f5f5;
   padding: 6px 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -191,7 +228,7 @@
   font-size: 12px;
   text-align: center;
   white-space: nowrap;
-  color: #666;
+  color: #999;
 }
 
 .ev-brightness {
