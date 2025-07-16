@@ -1,10 +1,10 @@
 /*
  * ExpoCalc - Camera Exposure Calculator - Utility Functions
- * Version: 1.0.0
+ * Version: 1.0.1
  * Created: 2025-07-17
- * Author: GitHub Copilot Assistant
+ * Author: nobuoJT
  * Description: Core calculation utilities for exposure parameters
- * Copyright (c) 2025 ExpoCalc Project
+ * Copyright (c) 2025 nobuoJT
  * License: MIT License
  */
 

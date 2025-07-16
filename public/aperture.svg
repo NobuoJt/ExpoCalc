@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- 外枠リング -->
+  <circle cx="16" cy="16" r="15" fill="#34495e" stroke="#2c3e50" stroke-width="1"/>
+  
+  <!-- 絞り羽根ベース -->
+  <circle cx="16" cy="16" r="12" fill="#2c3e50"/>
+  
+  <!-- 絞り羽根（8枚羽根の絞り） -->
+  <g transform="translate(16,16)">
+    <!-- 羽根の影 -->
+    <g opacity="0.3">
+      <path d="M0,-10 L3,-6 L6,-8 L3,-3 L0,-1 L-3,-3 L-6,-8 L-3,-6 Z" fill="#1a252f" transform="rotate(0)"/>
+      <path d="M0,-10 L3,-6 L6,-8 L3,-3 L0,-1 L-3,-3 L-6,-8 L-3,-6 Z" fill="#1a252f" transform="rotate(45)"/>
+      <path d="M0,-10 L3,-6 L6,-8 L3,-3 L0,-1 L-3,-3 L-6,-8 L-3,-6 Z" fill="#1a252f" transform="rotate(90)"/>
+      <path d="M0,-10 L3,-6 L6,-8 L3,-3 L0,-1 L-3,-3 L-6,-8 L-3,-6 Z" fill="#1a252f" transform="rotate(135)"/>
+      <path d="M0,-10 L3,-6 L6,-8 L3,-3 L0,-1 L-3,-3 L-6,-8 L-3,-6 Z" fill="#1a252f" transform="rotate(180)"/>
+      <path d="M0,-10 L3,-6 L6,-8 L3,-3 L0,-1 L-3,-3 L-6,-8 L-3,-6 Z" fill="#1a252f" transform="rotate(225)"/>
+      <path d="M0,-10 L3,-6 L6,-8 L3,-3 L0,-1 L-3,-3 L-6,-8 L-3,-6 Z" fill="#1a252f" transform="rotate(270)"/>
+      <path d="M0,-10 L3,-6 L6,-8 L3,-3 L0,-1 L-3,-3 L-6,-8 L-3,-6 Z" fill="#1a252f" transform="rotate(315)"/>
+    </g>
+    
+    <!-- 羽根本体 -->
+    <path d="M0,-10 L3,-6 L6,-8 L3,-3 L0,-1 L-3,-3 L-6,-8 L-3,-6 Z" fill="#ecf0f1" transform="rotate(0)"/>
+    <path d="M0,-10 L3,-6 L6,-8 L3,-3 L0,-1 L-3,-3 L-6,-8 L-3,-6 Z" fill="#bdc3c7" transform="rotate(45)"/>
+    <path d="M0,-10 L3,-6 L6,-8 L3,-3 L0,-1 L-3,-3 L-6,-8 L-3,-6 Z" fill="#ecf0f1" transform="rotate(90)"/>
+    <path d="M0,-10 L3,-6 L6,-8 L3,-3 L0,-1 L-3,-3 L-6,-8 L-3,-6 Z" fill="#bdc3c7" transform="rotate(135)"/>
+    <path d="M0,-10 L3,-6 L6,-8 L3,-3 L0,-1 L-3,-3 L-6,-8 L-3,-6 Z" fill="#ecf0f1" transform="rotate(180)"/>
+    <path d="M0,-10 L3,-6 L6,-8 L3,-3 L0,-1 L-3,-3 L-6,-8 L-3,-6 Z" fill="#bdc3c7" transform="rotate(225)"/>
+    <path d="M0,-10 L3,-6 L6,-8 L3,-3 L0,-1 L-3,-3 L-6,-8 L-3,-6 Z" fill="#ecf0f1" transform="rotate(270)"/>
+    <path d="M0,-10 L3,-6 L6,-8 L3,-3 L0,-1 L-3,-3 L-6,-8 L-3,-6 Z" fill="#bdc3c7" transform="rotate(315)"/>
+  </g>
+  
+  <!-- 中央の穴 -->
+  <circle cx="16" cy="16" r="2.5" fill="#1a252f"/>
+  <circle cx="16" cy="16" r="2.5" fill="none" stroke="#34495e" stroke-width="0.5"/>
+  
+  <!-- 絞りマーカー -->
+  <g transform="translate(16,16)">
+    <circle cx="0" cy="-13" r="0.5" fill="#e74c3c"/>
+    <text x="0" y="-11" text-anchor="middle" font-family="Arial, sans-serif" font-size="3" fill="#ecf0f1" font-weight="bold">f</text>
+  </g>
+</svg>

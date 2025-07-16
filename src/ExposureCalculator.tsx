@@ -1,11 +1,11 @@
 /*
  * ExpoCalc - Camera Exposure Calculator
- * Version: 1.0.0
+ * Version: 1.0.1
  * Created: 2025-07-17
- * Author: GitHub Copilot Assistant
+ * Author: nobuoJT
  * Description: Interactive camera exposure calculator with EV, AV, TV, ISO parameters
  * Features: Single calculation, 1D table, Matrix table modes with responsive design
- * Copyright (c) 2025 ExpoCalc Project
+ * Copyright (c) 2025 nobuoJT
  * License: MIT License
  */
 
@@ -32,6 +32,14 @@ import {
   getRangeWarning
 } from './exposureUtils';
 import './ExposureCalculator.css';
+import version from '../package.json';
+
+// アプリケーション情報
+const APP_INFO = {
+  name: 'ExpoCalc',
+  version: version?.version,
+  author: 'nobuoJT'
+};
 
 type CalculationMode = 'single' | 'table1D' | 'matrix2D';
 
@@ -319,7 +327,7 @@ const ExposureCalculator: React.FC = () => {
 
   return (
     <div className="exposure-calculator">
-      <h1>露出計算機</h1>
+      <h1>ExpoCalc - 露出計算機</h1>
       
       <div className={`main-content ${mode === 'single' ? 'single-mode' : mode === 'matrix2D' ? 'matrix-mode' : ''}`}>
         {/* 左のカラム：コントロール */}
@@ -856,8 +864,8 @@ const ExposureCalculator: React.FC = () => {
       {/* フッター */}
       <footer className="app-footer">
         <div className="footer-content">
-          <p>ExpoCalc v1.0.0 - Camera Exposure Calculator</p>
-          <p>© 2025 ExpoCalc Project | MIT License</p>
+          <p>{APP_INFO.name} v{APP_INFO.version} - Camera Exposure Calculator</p>
+          <p>© 2025 {APP_INFO.author} | MIT License</p>
         </div>
       </footer>
     </div>
