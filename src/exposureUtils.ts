@@ -325,3 +325,208 @@ export function clampToRange(param: keyof ExposureValues, value: number, ranges:
   const range = ranges[param];
   return Math.max(range.min, Math.min(range.max, value));
 }
+
+// 2つの固定パラメータから残り2つのパラメータを計算（1次元表用）
+// 固定された2つのパラメータから、露出等価を保ちながら残り2つのパラメータを段階的に計算
+export function calculateRemainingParameters(
+  fixedParams: Partial<ExposureValues>
+): { [key in keyof ExposureValues]?: number } {
+  const result: Partial<ExposureValues> = { ...fixedParams };
+  
+  // 固定されたパラメータの組み合わせに応じて計算
+  const fixedKeys = Object.keys(fixedParams) as Array<keyof ExposureValues>;
+  
+  if (fixedKeys.length !== 2) {
+    throw new Error('Exactly 2 parameters must be fixed');
+  }
+  
+  // EV = AV + TV - ISO の関係式を使用
+  const [fixed1, fixed2] = fixedKeys;
+  
+  // 固定された2つのパラメータから、残り2つを露出等価を保って計算
+  // 基本的には3つ目のパラメータを設定して、4つ目を計算する
+  
+  if ((fixed1 === 'ev' && fixed2 === 'av') || (fixed1 === 'av' && fixed2 === 'ev')) {
+    // EV, AV固定 → TV, ISO計算
+    // EV = AV + TV - ISO から TV = EV - AV + ISO
+    // ISO = 0を基準として、TVを計算
+    const ev = fixedParams.ev!;
+    const av = fixedParams.av!;
+    const iso = 0; // 基準値
+    const tv = ev - av + iso;
+    result.tv = tv;
+    result.iso = iso;
+  } else if ((fixed1 === 'ev' && fixed2 === 'tv') || (fixed1 === 'tv' && fixed2 === 'ev')) {
+    // EV, TV固定 → AV, ISO計算
+    const ev = fixedParams.ev!;
+    const tv = fixedParams.tv!;
+    const iso = 0; // 基準値
+    const av = ev - tv + iso;
+    result.av = av;
+    result.iso = iso;
+  } else if ((fixed1 === 'ev' && fixed2 === 'iso') || (fixed1 === 'iso' && fixed2 === 'ev')) {
+    // EV, ISO固定 → AV, TV計算
+    const ev = fixedParams.ev!;
+    const iso = fixedParams.iso!;
+    // AVとTVは相関関係があるので、一方を変化させると他方も決まる
+    // AV = 5を基準として、TVを計算
+    const av = 5; // 基準値
+    const tv = ev - av + iso;
+    result.av = av;
+    result.tv = tv;
+  } else if ((fixed1 === 'av' && fixed2 === 'tv') || (fixed1 === 'tv' && fixed2 === 'av')) {
+    // AV, TV固定 → EV, ISO計算
+    const av = fixedParams.av!;
+    const tv = fixedParams.tv!;
+    const iso = 0; // 基準値
+    const ev = av + tv - iso;
+    result.ev = ev;
+    result.iso = iso;
+  } else if ((fixed1 === 'av' && fixed2 === 'iso') || (fixed1 === 'iso' && fixed2 === 'av')) {
+    // AV, ISO固定 → EV, TV計算
+    const av = fixedParams.av!;
+    const iso = fixedParams.iso!;
+    const tv = 7; // 基準値
+    const ev = av + tv - iso;
+    result.ev = ev;
+    result.tv = tv;
+  } else if ((fixed1 === 'tv' && fixed2 === 'iso') || (fixed1 === 'iso' && fixed2 === 'tv')) {
+    // TV, ISO固定 → EV, AV計算
+    const tv = fixedParams.tv!;
+    const iso = fixedParams.iso!;
+    const av = 5; // 基準値
+    const ev = av + tv - iso;
+    result.ev = ev;
+    result.av = av;
+  }
+  
+  return result;
+}
+
+// 1次元表用：固定された2つのパラメータから、段階的に変化する残り2つのパラメータの組み合わせを生成
+export function generate1DTableData(
+  fixedParam1: keyof ExposureValues,
+  fixedParam2: keyof ExposureValues,
+  baseValues: ExposureValues,
+  ranges: RangeConfig,
+  stepSize: number
+): { variableParams: [keyof ExposureValues, keyof ExposureValues], combinations: ExposureValues[] } {
+  console.log('=== 1D表生成開始 ===');
+  console.log(`固定パラメータ: ${fixedParam1}=${baseValues[fixedParam1]}, ${fixedParam2}=${baseValues[fixedParam2]}`);
+  
+  // 残りのパラメータを決定
+  const allParams: (keyof ExposureValues)[] = ['ev', 'av', 'tv', 'iso'];
+  const variableParams = allParams.filter(p => p !== fixedParam1 && p !== fixedParam2) as [keyof ExposureValues, keyof ExposureValues];
+  
+  if (variableParams.length !== 2) {
+    console.error('変動パラメータが2つではありません:', variableParams);
+    return { variableParams: ['ev', 'av'], combinations: [] };
+  }
+  
+  const [varParam1, varParam2] = variableParams;
+  console.log(`変動パラメータ: ${varParam1}, ${varParam2}`);
+  
+  // A: 変動パラメータ1について、設定範囲内、設定段数のステップで入力パラメータの候補リストを作成
+  const varParam1Range = ranges[varParam1];
+  const varParam1Steps = generateSteps(varParam1Range.min, varParam1Range.max, stepSize);
+  console.log(`A: ${varParam1}の候補リスト作成完了 (${varParam1Steps.length}個):`, varParam1Steps.slice(0, 5), '...');
+  
+  // B: それに対応する変動パラメータ2を計算して変動パラメータ1,2のリストを作成
+  const listB: Array<{ [K in keyof ExposureValues]: number }> = [];
+  for (const val1 of varParam1Steps) {
+    try {
+      const testValues: Partial<ExposureValues> = {};
+      testValues[fixedParam1] = baseValues[fixedParam1];
+      testValues[fixedParam2] = baseValues[fixedParam2];
+      testValues[varParam1] = val1;
+      
+      const calculatedVal2 = calculateMissingValue(testValues as ExposureValues, varParam2);
+      
+      // 範囲チェック
+      if (calculatedVal2 >= ranges[varParam2].min && calculatedVal2 <= ranges[varParam2].max) {
+        const combination = { ...testValues, [varParam2]: calculatedVal2 } as ExposureValues;
+        listB.push(combination);
+      }
+    } catch {
+      // 計算エラーはスキップ
+    }
+  }
+  console.log(`B: ${varParam1}から${varParam2}を計算したリスト作成完了 (${listB.length}個)`);
+  
+  // C: 逆に変動パラメータ2について、設定範囲内、設定段数のステップで入力パラメータの候補リストを作成
+  const varParam2Range = ranges[varParam2];
+  const varParam2Steps = generateSteps(varParam2Range.min, varParam2Range.max, stepSize);
+  console.log(`C: ${varParam2}の候補リスト作成完了 (${varParam2Steps.length}個):`, varParam2Steps.slice(0, 5), '...');
+  
+  // D: それに対応する変動パラメータ1を計算して変動パラメータ1,2のリストを作成
+  const listD: Array<{ [K in keyof ExposureValues]: number }> = [];
+  for (const val2 of varParam2Steps) {
+    try {
+      const testValues: Partial<ExposureValues> = {};
+      testValues[fixedParam1] = baseValues[fixedParam1];
+      testValues[fixedParam2] = baseValues[fixedParam2];
+      testValues[varParam2] = val2;
+      
+      const calculatedVal1 = calculateMissingValue(testValues as ExposureValues, varParam1);
+      
+      // 範囲チェック
+      if (calculatedVal1 >= ranges[varParam1].min && calculatedVal1 <= ranges[varParam1].max) {
+        const combination = { ...testValues, [varParam1]: calculatedVal1 } as ExposureValues;
+        listD.push(combination);
+      }
+    } catch {
+      // 計算エラーはスキップ
+    }
+  }
+  console.log(`D: ${varParam2}から${varParam1}を計算したリスト作成完了 (${listD.length}個)`);
+  
+  // E: (B),(D)のリストをパラメータを揃えて合体。重複や範囲外を除外して表を作成
+  const combinedList = [...listB, ...listD];
+  console.log(`E: リスト合体前 (${combinedList.length}個)`);
+  
+  // 重複除外（全パラメータの値が近似している組み合わせを除外）
+  const uniqueList: ExposureValues[] = [];
+  const tolerance = 0.01; // 許容誤差
+  
+  for (const combination of combinedList) {
+    const isDuplicate = uniqueList.some(existing => {
+      return allParams.every(param => 
+        Math.abs(combination[param] - existing[param]) < tolerance
+      );
+    });
+    
+    if (!isDuplicate) {
+      uniqueList.push(combination);
+    }
+  }
+  console.log(`E: 重複除外後 (${uniqueList.length}個)`);
+  
+  // 変動パラメータ1でソート
+  uniqueList.sort((a, b) => a[varParam1] - b[varParam1]);
+  
+  // F: 表が正しく露出計算されているかの検算を行う
+  console.log('F: 露出計算検算開始');
+  let validCount = 0;
+  let invalidCount = 0;
+  const expectedEV = baseValues.av + baseValues.tv - baseValues.iso;
+  
+  for (let i = 0; i < Math.min(uniqueList.length, 5); i++) {
+    const combination = uniqueList[i];
+    const calculatedEV = combination.av + combination.tv - combination.iso;
+    const evDiff = Math.abs(calculatedEV - expectedEV);
+    
+    if (evDiff < 0.01) {
+      validCount++;
+      console.log(`F: 検算OK [${i+1}] EV計算値=${calculatedEV.toFixed(3)}, 期待値=${expectedEV.toFixed(3)}`);
+    } else {
+      invalidCount++;
+      console.log(`F: 検算NG [${i+1}] EV計算値=${calculatedEV.toFixed(3)}, 期待値=${expectedEV.toFixed(3)}, 差=${evDiff.toFixed(3)}`);
+    }
+  }
+  console.log(`F: 検算完了 (確認${Math.min(uniqueList.length, 5)}個中 OK:${validCount}, NG:${invalidCount})`);
+  
+  console.log(`最終テーブル: 行=${uniqueList.length}個, 列=2個(${varParam1}, ${varParam2})`);
+  console.log('=== 1D表生成完了 ===\n');
+  
+  return { variableParams, combinations: uniqueList };
+}
