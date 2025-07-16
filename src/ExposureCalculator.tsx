@@ -15,7 +15,10 @@ import {
   formatCommonShutterSpeed,
   formatCommonISO,
   evToLux,
-  formatLux
+  formatLux,
+  isValueInRange,
+  getRangeWarning,
+  clampToRange
 } from './exposureUtils';
 import './ExposureCalculator.css';
 
@@ -99,9 +102,13 @@ const ExposureCalculator: React.FC = () => {
         }
       }
       
-      // 一般表現での警告チェック
-      if (!isNearCommonValue(param, newValue)) {
-        warning = `この値は一般的なカメラ設定値ではありません(param: ${param}, value: ${newValue})`;
+      // 範囲チェック
+      if (!isValueInRange(param, newValue, ranges)) {
+        warning = getRangeWarning(param, newValue, ranges);
+      }
+      // 一般表現での警告チェック（範囲警告がない場合のみ）
+      else if (!isNearCommonValue(param, newValue)) {
+        warning = `この値は一般的なカメラ設定値ではありません`;
       }
     }
 
@@ -300,6 +307,16 @@ const ExposureCalculator: React.FC = () => {
         
         const result = calculateMissingValue(knownValues, calculatedParam);
         setValues(prev => ({ ...prev, [calculatedParam]: result }));
+        
+        // 計算結果の範囲チェック
+        if (!isValueInRange(calculatedParam, result, ranges)) {
+          setInputWarnings(prev => ({ 
+            ...prev, 
+            [calculatedParam]: getRangeWarning(calculatedParam, result, ranges)
+          }));
+        } else {
+          setInputWarnings(prev => ({ ...prev, [calculatedParam]: '' }));
+        }
       } catch (error) {
         console.error('ステップ調整時のリアルタイム計算エラー:', error);
       }
@@ -498,10 +515,12 @@ const ExposureCalculator: React.FC = () => {
                 }
               };
               
+              const isOutOfRange = !isValueInRange(param as keyof ExposureValues, value, ranges);
+              
               return (
                 <div 
                   key={param} 
-                  className={`parameter-row ${isOutputParam ? 'output-param' : ''} ${mode === 'single' ? 'clickable' : ''}`}
+                  className={`parameter-row ${isOutputParam ? 'output-param' : ''} ${mode === 'single' ? 'clickable' : ''} ${isOutOfRange ? 'out-of-range' : ''}`}
                   onClick={handleRowClick}
                 >
                   <div className={`value-input-row ${showDetailedValues ? 'detailed' : ''}`}>
@@ -537,6 +556,13 @@ const ExposureCalculator: React.FC = () => {
                                 const newValues = { ...values, [param]: newValue };
                                 setValues(newValues);
                                 
+                                // 範囲チェック
+                                let warning = '';
+                                if (!isValueInRange(param as keyof ExposureValues, newValue, ranges)) {
+                                  warning = getRangeWarning(param as keyof ExposureValues, newValue, ranges);
+                                }
+                                setInputWarnings(prev => ({ ...prev, [param]: warning }));
+                                
                                 // 単一計算モードでリアルタイム計算
                                 if (mode === 'single' && param !== calculatedParam) {
                                   try {
@@ -545,6 +571,16 @@ const ExposureCalculator: React.FC = () => {
                                     
                                     const result = calculateMissingValue(knownValues, calculatedParam);
                                     setValues(prev => ({ ...prev, [calculatedParam]: result }));
+                                    
+                                    // 計算結果の範囲チェック
+                                    if (!isValueInRange(calculatedParam, result, ranges)) {
+                                      setInputWarnings(prev => ({ 
+                                        ...prev, 
+                                        [calculatedParam]: getRangeWarning(calculatedParam, result, ranges)
+                                      }));
+                                    } else {
+                                      setInputWarnings(prev => ({ ...prev, [calculatedParam]: '' }));
+                                    }
                                   } catch (error) {
                                     console.error('数値入力時のリアルタイム計算エラー:', error);
                                   }
@@ -614,7 +650,7 @@ const ExposureCalculator: React.FC = () => {
                     </div>
                   </div>
                   {inputWarnings[param as keyof ExposureValues] && (
-                    <div className="input-warning">
+                    <div className={`input-warning ${isOutOfRange ? 'out-of-range' : ''}`}>
                       {inputWarnings[param as keyof ExposureValues]}
                     </div>
                   )}

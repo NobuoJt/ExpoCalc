@@ -302,3 +302,26 @@ export function isNearCommonValue(param: keyof ExposureValues, value: number, th
       return true;
   }
 }
+
+// 値が範囲内かどうかをチェック
+export function isValueInRange(param: keyof ExposureValues, value: number, ranges: RangeConfig): boolean {
+  const range = ranges[param];
+  return value >= range.min && value <= range.max;
+}
+
+// 範囲外の値に対する警告メッセージを生成
+export function getRangeWarning(param: keyof ExposureValues, value: number, ranges: RangeConfig): string {
+  const range = ranges[param];
+  if (value < range.min) {
+    return `値が範囲の下限(${range.min})を下回っています`;
+  } else if (value > range.max) {
+    return `値が範囲の上限(${range.max})を上回っています`;
+  }
+  return '';
+}
+
+// 範囲外の値を範囲内に制限
+export function clampToRange(param: keyof ExposureValues, value: number, ranges: RangeConfig): number {
+  const range = ranges[param];
+  return Math.max(range.min, Math.min(range.max, value));
+}

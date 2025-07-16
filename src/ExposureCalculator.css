@@ -740,6 +740,31 @@
   border-radius: 3px;
 }
 
+/* 範囲外の値に対する特別な表示 */
+.parameter-row.out-of-range {
+  background: #ffe8e8;
+  border: 1px solid #ffb3b3;
+}
+
+.parameter-row.out-of-range .value-input,
+.parameter-row.out-of-range .common-value {
+  border-color: #ff6b6b;
+  background: #fff5f5;
+}
+
+.parameter-row.out-of-range .output-display {
+  border-color: #ff6b6b;
+  background: #fff5f5;
+  color: #c62828;
+}
+
+.input-warning.out-of-range {
+  background: #ffebee;
+  border-color: #f8bbd9;
+  color: #c62828;
+  font-weight: bold;
+}
+
 /* レスポンシブデザイン */
 @media (max-width: 1024px) {
   .main-content {
