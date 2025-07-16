@@ -515,6 +515,15 @@ const ExposureCalculator: React.FC = () => {
               
               const isOutputParam = mode === 'single' && param === calculatedParam;
               
+              // 1Dテーブルモードでは固定パラメータのみ表示
+              const shouldShowParam = mode === 'single' ? true :
+                                     mode === 'table1D' ? (param === selectedParam1 || param === selectedParam2) :
+                                     (mode === 'table2D' || mode === 'matrix2D') ? param === selectedParam1 : true;
+              
+              if (!shouldShowParam) {
+                return null;
+              }
+              
               const handleRowClick = (e: React.MouseEvent) => {
                 // input, button, select要素からのクリックは無視
                 const target = e.target as HTMLElement;
