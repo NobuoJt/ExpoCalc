@@ -1,0 +1,552 @@
+.exposure-calculator {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+.exposure-calculator h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+/* 2カラムレイアウト */
+.main-content {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 30px;
+  align-items: start;
+}
+
+.controls-column {
+  min-width: 0; /* グリッドアイテムのオーバーフロー対応 */
+}
+
+.params-column {
+  position: sticky;
+  top: 20px;
+}
+
+/* セクション共通スタイル */
+.section {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.section h2 {
+  color: #444;
+  border-bottom: 2px solid #007acc;
+  padding-bottom: 5px;
+  margin-bottom: 15px;
+  margin-top: 0;
+}
+
+.section h3 {
+  color: #555;
+  margin-bottom: 10px;
+  margin-top: 15px;
+}
+
+/* モード選択 */
+.mode-selector label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.mode-selector input[type="radio"] {
+  margin-right: 8px;
+}
+
+/* 設定 */
+.step-config label {
+  display: block;
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+
+.step-config select {
+  margin-left: 10px;
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+}
+
+.range-config {
+  margin-top: 20px;
+}
+
+.range-input {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+
+.range-input label {
+  min-width: 120px;
+  font-weight: 500;
+}
+
+.range-input input[type="number"] {
+  width: 70px;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.range-input span {
+  color: #666;
+  font-size: 12px;
+}
+
+/* 値入力 */
+.value-inputs {
+  background: #f1f8e9;
+}
+
+.value-input-row {
+  display: grid;
+  grid-template-columns: 60px 60px 120px 1fr;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 8px;
+}
+
+.value-input-row label {
+  font-weight: 500;
+  font-size: 14px;
+  text-align: left;
+}
+
+.value-input-row input[type="number"] {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.value-input-row input[type="number"]:disabled {
+  background: #f5f5f5;
+  color: #999;
+}
+
+.formatted-value {
+  background: #fff;
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 12px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.step-buttons {
+  display: flex;
+  gap: 2px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  min-width: 200px;
+}
+
+.step-button {
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid;
+  min-width: 28px;
+  text-align: center;
+}
+
+/* マイナスボタン（赤系） */
+.step-button.minus {
+  background: #ffebee;
+  border-color: #f44336;
+  color: #c62828;
+}
+
+.step-button.minus:hover:not(:disabled) {
+  background: #ffcdd2;
+}
+
+.step-button.minus.full-stop {
+  background: #f44336;
+  color: white;
+}
+
+.step-button.minus.full-stop:hover:not(:disabled) {
+  background: #d32f2f;
+}
+
+/* プラスボタン（青系） */
+.step-button.plus {
+  background: #e3f2fd;
+  border-color: #2196f3;
+  color: #1565c0;
+}
+
+.step-button.plus:hover:not(:disabled) {
+  background: #bbdefb;
+}
+
+.step-button.plus.full-stop {
+  background: #2196f3;
+  color: white;
+}
+
+.step-button.plus.full-stop:hover:not(:disabled) {
+  background: #1976d2;
+}
+
+.step-button:disabled {
+  background: #f5f5f5 !important;
+  color: #999 !important;
+  cursor: not-allowed;
+  border-color: #ddd !important;
+}
+
+.ev-description {
+  grid-column: 2 / -1;
+  margin-top: 5px;
+  padding: 8px;
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #856404;
+}
+
+/* 警告表示 */
+.warning {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  color: #856404;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+/* 計算ボタン */
+.calculation-buttons {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.calculation-buttons button {
+  background: #007acc;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  margin: 5px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.calculation-buttons button:hover {
+  background: #005fa3;
+}
+
+.calculation-buttons button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* テーブル */
+.table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.table-scroll {
+  overflow: auto;
+  max-height: 600px;
+}
+
+.table-container table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.table-container thead {
+  position: sticky;
+  top: 0;
+  background: #007acc;
+  z-index: 10;
+}
+
+.table-container th {
+  background: #007acc;
+  color: white;
+  padding: 10px 8px;
+  text-align: left;
+  font-weight: 600;
+  border-right: 1px solid #005fa3;
+  white-space: nowrap;
+}
+
+.table-container th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 11;
+  background: #1976d2;
+  color: white;
+  font-style: italic;
+}
+
+/* マトリックス表用の追加CSSスタイル */
+.table-container td.invalid-cell {
+  background: #ffebee !important;
+  color: #999;
+  font-style: italic;
+}
+
+.table-container th.param-header {
+  background: #1976d2;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+}
+
+.table-container td {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+  border-right: 1px solid #eee;
+  white-space: nowrap;
+}
+
+.table-container td:first-child {
+  position: sticky;
+  left: 0;
+  background: #f8f9fa;
+  font-weight: 500;
+  z-index: 5;
+}
+
+.table-container tr:nth-child(even) td:not(:first-child) {
+  background: #f8f9fa;
+}
+
+.table-container tr:hover td:not(:first-child) {
+  background: #e3f2fd;
+}
+
+.table-container td.highlighted {
+  background: #fff3cd !important;
+  font-weight: bold;
+}
+
+.table-container td.exact-match {
+  background: #c8e6c9 !important;
+  font-weight: bold;
+}
+
+.table-container td.fixed-param {
+  background: #e1f5fe !important;
+  font-style: italic;
+}
+
+/* EV-明るさ目安表 */
+.ev-reference-table {
+  background: #f0f4f8;
+}
+
+.ev-reference-toggle {
+  background: #007acc;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font-weight: 500;
+}
+
+.ev-reference-toggle:hover {
+  background: #005fa3;
+}
+
+.ev-reference-content {
+  margin-top: 10px;
+}
+
+.ev-reference-content table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.ev-reference-content th,
+.ev-reference-content td {
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.ev-reference-content th {
+  background: #e3f2fd;
+  font-weight: 600;
+}
+
+/* 計算履歴 */
+.history-section {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.history-item {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.history-item .timestamp {
+  color: #666;
+  font-size: 11px;
+}
+
+.history-item .values {
+  margin-top: 5px;
+  font-family: monospace;
+}
+
+/* 折りたたみ可能な設定エリア */
+.collapsible-section {
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.collapsible-header {
+  background: #e9ecef;
+  border: none;
+  padding: 15px 20px;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font-weight: 600;
+  font-size: 16px;
+  color: #495057;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.2s;
+}
+
+.collapsible-header:hover {
+  background: #dee2e6;
+}
+
+.collapsible-content {
+  padding: 20px;
+  border-top: 1px solid #dee2e6;
+}
+
+.collapsible-content.collapsed {
+  display: none;
+}
+
+/* 警告表示スタイル */
+.input-warning {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  color: #856404;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  margin-top: 4px;
+  grid-column: 1 / -1;
+}
+
+/* レスポンシブデザイン */
+@media (max-width: 1024px) {
+  .main-content {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .params-column {
+    position: static;
+    order: -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .exposure-calculator {
+    padding: 10px;
+  }
+  
+  .value-input-row {
+    grid-template-columns: 50px 50px 100px 1fr;
+    gap: 6px;
+  }
+  
+  .step-buttons {
+    min-width: 180px;
+  }
+  
+  .step-button {
+    min-width: 24px;
+    padding: 3px 6px;
+    font-size: 10px;
+  }
+  
+  .table-container {
+    font-size: 11px;
+  }
+  
+  .table-container th,
+  .table-container td {
+    padding: 6px 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .exposure-calculator h1 {
+    font-size: 24px;
+  }
+  
+  .value-input-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  
+  .value-input-row > * {
+    justify-self: stretch;
+  }
+  
+  .step-buttons {
+    justify-content: center;
+    min-width: auto;
+  }
+  
+  .formatted-value {
+    font-size: 11px;
+  }
+  
+  .section {
+    padding: 15px;
+  }
+}
