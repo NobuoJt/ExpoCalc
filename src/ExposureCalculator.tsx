@@ -793,11 +793,15 @@ const ExposureCalculator: React.FC = () => {
                 
                 return (
                   <div className="table-1d">
+                    <h3>
+                        1次元表
+                    </h3>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-                      <h3>
-                        1次元表 - 固定: {getParamLabel(selectedParam1)}={formatValue(selectedParam1, values[selectedParam1])}, {getParamLabel(selectedParam2)}={formatValue(selectedParam2, values[selectedParam2])}
-                        <span> (基準EV: {(values.av + values.tv - values.iso).toFixed(1)})</span>
-                      </h3>
+                      <h4>
+                        固定: {getParamLabel(selectedParam1)}={formatValue(selectedParam1, values[selectedParam1])}, {getParamLabel(selectedParam2)}={formatValue(selectedParam2, values[selectedParam2])}
+
+                      
+                      </h4>
                       <button 
                         className="toggle-detailed-values"
                         onClick={() => setShowUnifiedValues(!showUnifiedValues)}
