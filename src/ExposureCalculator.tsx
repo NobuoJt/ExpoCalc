@@ -237,7 +237,7 @@ const ExposureCalculator: React.FC = () => {
     switch (param) {
       case 'ev': return 'EV (露出値)';
       case 'av': return 'AV (絞り値)';
-      case 'tv': return 'TV (シャッター速度)';
+      case 'tv': return 'TV (ｼｬｯﾀｰ速)';
       case 'iso': return 'ISO (感度)';
     }
   };
@@ -327,7 +327,7 @@ const ExposureCalculator: React.FC = () => {
 
   return (
     <div className="exposure-calculator">
-      <h1>ExpoCalc - 露出計算機</h1>
+      <h1>ExpoCalc<wbr /> - 露出計算機</h1>
       
       <div className={`main-content ${mode === 'single' ? 'single-mode' : mode === 'matrix2D' ? 'matrix-mode' : ''}`}>
         {/* 左のカラム：コントロール */}
@@ -381,7 +381,7 @@ const ExposureCalculator: React.FC = () => {
                   <select value={selectedParam1} onChange={(e) => setSelectedParam1(e.target.value as keyof ExposureValues)}>
                     <option value="ev">EV (露出値)</option>
                     <option value="av">AV (絞り値)</option>
-                    <option value="tv">TV (シャッター速度)</option>
+                    <option value="tv">TV (ｼｬｯﾀｰ速)</option>
                     <option value="iso">ISO (感度)</option>
                   </select>
                 </label>
@@ -390,7 +390,7 @@ const ExposureCalculator: React.FC = () => {
                   <select value={selectedParam2} onChange={(e) => setSelectedParam2(e.target.value as keyof ExposureValues)}>
                     <option value="ev" disabled={selectedParam1 === 'ev'}>EV (露出値)</option>
                     <option value="av" disabled={selectedParam1 === 'av'}>AV (絞り値)</option>
-                    <option value="tv" disabled={selectedParam1 === 'tv'}>TV (シャッター速度)</option>
+                    <option value="tv" disabled={selectedParam1 === 'tv'}>TV (ｼｬｯﾀｰ速)</option>
                     <option value="iso" disabled={selectedParam1 === 'iso'}>ISO (感度)</option>
                   </select>
                 </label>
@@ -405,7 +405,7 @@ const ExposureCalculator: React.FC = () => {
                   <select value={matrixFixedParam} onChange={(e) => setMatrixFixedParam(e.target.value as keyof ExposureValues)}>
                     <option value="ev">EV (露出値)</option>
                     <option value="av">AV (絞り値)</option>
-                    <option value="tv">TV (シャッター速度)</option>
+                    <option value="tv">TV (ｼｬｯﾀｰ速)</option>
                     <option value="iso">ISO (感度)</option>
                   </select>
                 </label>
@@ -414,7 +414,7 @@ const ExposureCalculator: React.FC = () => {
                   <select value={matrixOutputParam} onChange={(e) => setMatrixOutputParam(e.target.value as keyof ExposureValues)}>
                     <option value="ev" disabled={matrixFixedParam === 'ev'}>EV (露出値)</option>
                     <option value="av" disabled={matrixFixedParam === 'av'}>AV (絞り値)</option>
-                    <option value="tv" disabled={matrixFixedParam === 'tv'}>TV (シャッター速度)</option>
+                    <option value="tv" disabled={matrixFixedParam === 'tv'}>TV (ｼｬｯﾀｰ速)</option>
                     <option value="iso" disabled={matrixFixedParam === 'iso'}>ISO (感度)</option>
                   </select>
                 </label>
@@ -563,54 +563,58 @@ const ExposureCalculator: React.FC = () => {
                       </div>
                     )}
                     <div className="step-buttons" onClick={(e) => e.stopPropagation()}>
-                      <button 
-                        className={`step-button minus full-stop ${isStepDisabled(param as keyof ExposureValues, -1) || (isOutputParam && mode === 'single') ? 'disabled' : ''}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          adjustValue(param as keyof ExposureValues, -1);
-                        }}
-                        disabled={isStepDisabled(param as keyof ExposureValues, -1) || (isOutputParam && mode === 'single')}
-                      >-1</button>
-                      <button 
-                        className={`step-button minus ${isStepDisabled(param as keyof ExposureValues, -0.5) || (isOutputParam && mode === 'single') ? 'disabled' : ''}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          adjustValue(param as keyof ExposureValues, -0.5);
-                        }}
-                        disabled={isStepDisabled(param as keyof ExposureValues, -0.5) || (isOutputParam && mode === 'single')}
-                      >-½</button>
-                      <button 
-                        className={`step-button minus ${isStepDisabled(param as keyof ExposureValues, -1/3) || (isOutputParam && mode === 'single') ? 'disabled' : ''}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          adjustValue(param as keyof ExposureValues, -1/3);
-                        }}
-                        disabled={isStepDisabled(param as keyof ExposureValues, -1/3) || (isOutputParam && mode === 'single')}
-                      >-⅓</button>
-                      <button 
-                        className={`step-button plus ${isStepDisabled(param as keyof ExposureValues, 1/3) || (isOutputParam && mode === 'single') ? 'disabled' : ''}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          adjustValue(param as keyof ExposureValues, 1/3);
-                        }}
-                        disabled={isStepDisabled(param as keyof ExposureValues, 1/3) || (isOutputParam && mode === 'single')}
-                      >+⅓</button>
-                      <button 
-                        className={`step-button plus ${isStepDisabled(param as keyof ExposureValues, 0.5) || (isOutputParam && mode === 'single') ? 'disabled' : ''}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          adjustValue(param as keyof ExposureValues, 0.5);
-                        }}
-                        disabled={isStepDisabled(param as keyof ExposureValues, 0.5) || (isOutputParam && mode === 'single')}
-                      >+½</button>
-                      <button 
-                        className={`step-button plus full-stop ${isStepDisabled(param as keyof ExposureValues, 1) || (isOutputParam && mode === 'single') ? 'disabled' : ''}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          adjustValue(param as keyof ExposureValues, 1);
-                        }}
-                        disabled={isStepDisabled(param as keyof ExposureValues, 1) || (isOutputParam && mode === 'single')}
-                      >+1</button>
+                      <div className="step-minus-group">
+                        <button 
+                          className={`step-button minus full-stop ${isStepDisabled(param as keyof ExposureValues, -1) || (isOutputParam && mode === 'single') ? 'disabled' : ''}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            adjustValue(param as keyof ExposureValues, -1);
+                          }}
+                          disabled={isStepDisabled(param as keyof ExposureValues, -1) || (isOutputParam && mode === 'single')}
+                        >-1</button>
+                        <button 
+                          className={`step-button minus ${isStepDisabled(param as keyof ExposureValues, -0.5) || (isOutputParam && mode === 'single') ? 'disabled' : ''}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            adjustValue(param as keyof ExposureValues, -0.5);
+                          }}
+                          disabled={isStepDisabled(param as keyof ExposureValues, -0.5) || (isOutputParam && mode === 'single')}
+                        >-½</button>
+                        <button 
+                          className={`step-button minus ${isStepDisabled(param as keyof ExposureValues, -1/3) || (isOutputParam && mode === 'single') ? 'disabled' : ''}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            adjustValue(param as keyof ExposureValues, -1/3);
+                          }}
+                          disabled={isStepDisabled(param as keyof ExposureValues, -1/3) || (isOutputParam && mode === 'single')}
+                        >-⅓</button>
+                      </div>
+                      <div className="step-plus-group">
+                        <button 
+                          className={`step-button plus ${isStepDisabled(param as keyof ExposureValues, 1/3) || (isOutputParam && mode === 'single') ? 'disabled' : ''}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            adjustValue(param as keyof ExposureValues, 1/3);
+                          }}
+                          disabled={isStepDisabled(param as keyof ExposureValues, 1/3) || (isOutputParam && mode === 'single')}
+                        >+⅓</button>
+                        <button 
+                          className={`step-button plus ${isStepDisabled(param as keyof ExposureValues, 0.5) || (isOutputParam && mode === 'single') ? 'disabled' : ''}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            adjustValue(param as keyof ExposureValues, 0.5);
+                          }}
+                          disabled={isStepDisabled(param as keyof ExposureValues, 0.5) || (isOutputParam && mode === 'single')}
+                        >+½</button>
+                        <button 
+                          className={`step-button plus full-stop ${isStepDisabled(param as keyof ExposureValues, 1) || (isOutputParam && mode === 'single') ? 'disabled' : ''}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            adjustValue(param as keyof ExposureValues, 1);
+                          }}
+                          disabled={isStepDisabled(param as keyof ExposureValues, 1) || (isOutputParam && mode === 'single')}
+                        >+1</button>
+                      </div>
                     </div>
                   </div>
                   {inputWarnings[param as keyof ExposureValues] && (

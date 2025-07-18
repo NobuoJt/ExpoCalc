@@ -373,12 +373,27 @@
 
 .step-buttons {
   display: flex;
-  gap: 2px; /* 高解像度時は少し詰める */
+  gap: 2px;
   flex-wrap: wrap;
-  justify-content: flex-end;
   align-items: center;
   max-width: 100%;
-  min-width: 230px; /* 高解像度時は少し小さく */
+  min-width: 230px;
+}
+
+.step-minus-group {
+  display: flex;
+  gap: 2px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  flex: 1 1 auto;
+}
+
+.step-plus-group {
+  display: flex;
+  gap: 2px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  flex: 1 1 auto;
 }
 
 .step-button {

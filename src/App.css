@@ -4,6 +4,15 @@
   text-align: center;
 }
 
+/* すべての要素に border-box を適用 */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  word-break: keep-all;
+  transition: all 0.2s ease-in-out;
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;
