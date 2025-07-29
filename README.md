@@ -2,6 +2,12 @@
 
 ExpoCalcは、カメラの露出に関するパラメータを計算するインタラクティブなWebアプリケーションです。
 
+<img height="387" alt="image" src="https://github.com/user-attachments/assets/a43c690e-9403-4121-8ed1-a3e2316fc764" />
+
+## 実装先
+
+[動作ページ](https://expocalc.pages.dev/)
+
 ## 機能
 
 - **EV (Exposure Value)**: 露出値と明るさの言語的表現
