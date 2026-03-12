@@ -95,6 +95,38 @@ pnpm preview
 - **作者**: nobuoJT
 - **ライセンス**: MIT License
 
+## GitHub Actions 設定
+
+このリポジトリの GitHub Actions は CI 専用です（lint / build）。
+
+Cloudflare Pages のデプロイは Cloudflare 側の Git 連携（`main` 監視）で実行します。
+
+### Dependabot 自動マージに必要な設定
+
+- リポジトリ設定で Auto-merge を有効化
+- `main` ブランチ保護ルールで CI を必須に設定
+- 必要に応じて「Pull request approvals」を 1 に設定
+
+Dependabot の自動マージは、`semver-patch` と `semver-minor` の更新のみを対象にしています。
+
+### Branch protection 推奨設定（`main`）
+
+- Require a pull request before merging: ON
+- Required approvals: 1
+- Dismiss stale pull request approvals when new commits are pushed: ON
+- Require status checks to pass before merging: ON
+- Required status checks: `CI/CD / ci`
+- Require branches to be up to date before merging: ON
+- Require conversation resolution before merging: ON
+- Include administrators: ON
+- Allow force pushes: OFF
+- Allow deletions: OFF
+
+補足:
+
+- Deploy は Cloudflare 側で実行するため、`Require deployments to succeed before merging` は OFF 推奨
+- Dependabot 自動マージを使う場合は、Repository の Auto-merge 設定と、Actions による PR 承認許可を有効化
+
 ## 露出計算の基本
 
 露出は以下の関係式で表されます：
