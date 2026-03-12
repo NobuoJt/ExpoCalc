@@ -47,19 +47,19 @@ ExpoCalcは、カメラの露出に関するパラメータを計算するイン
 
 ### 必要な環境
 
-- Node.js (v16以上)
-- npm
+- Node.js (v22以上)
+- pnpm (v10以上)
 
 ### インストール
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### 開発サーバーの起動
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 ブラウザで <http://localhost:5173/> にアクセス
@@ -67,7 +67,7 @@ npm run dev
 ### ビルド
 
 ```bash
-npm run build
+pnpm build
 ```
 
 静的ファイルが `dist/` フォルダに生成されます。
@@ -75,16 +75,16 @@ npm run build
 ### プレビュー
 
 ```bash
-npm run preview
+pnpm preview
 ```
 
 ビルドされたファイルをローカルサーバーでプレビュー
 
 ## 技術スタック
 
-- **React 18** - UIライブラリ
+- **React 19** - UIライブラリ
 - **TypeScript** - 型安全性
-- **Vite 6** - ビルドツール
+- **Vite 7** - ビルドツール
 - **CSS** - スタイリング（レスポンシブ対応、Flexbox/Grid）
 - **カスタムファビコン** - 絞りマークのSVGアイコン
 
@@ -94,6 +94,38 @@ npm run preview
 - **作成日**: 2025年7月17日
 - **作者**: nobuoJT
 - **ライセンス**: MIT License
+
+## GitHub Actions 設定
+
+このリポジトリの GitHub Actions は CI 専用です（lint / build）。
+
+Cloudflare Pages のデプロイは Cloudflare 側の Git 連携（`main` 監視）で実行します。
+
+### Dependabot 自動マージに必要な設定
+
+- リポジトリ設定で Auto-merge を有効化
+- `main` ブランチ保護ルールで CI を必須に設定
+- 必要に応じて「Pull request approvals」を 1 に設定
+
+Dependabot の自動マージは、`semver-patch` と `semver-minor` の更新のみを対象にしています。
+
+### Branch protection 推奨設定（`main`）
+
+- Require a pull request before merging: ON
+- Required approvals: 1
+- Dismiss stale pull request approvals when new commits are pushed: ON
+- Require status checks to pass before merging: ON
+- Required status checks: `CI/CD / ci`
+- Require branches to be up to date before merging: ON
+- Require conversation resolution before merging: ON
+- Include administrators: ON
+- Allow force pushes: OFF
+- Allow deletions: OFF
+
+補足:
+
+- Deploy は Cloudflare 側で実行するため、`Require deployments to succeed before merging` は OFF 推奨
+- Dependabot 自動マージを使う場合は、Repository の Auto-merge 設定と、Actions による PR 承認許可を有効化
 
 ## 露出計算の基本
 
