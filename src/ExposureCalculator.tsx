@@ -67,7 +67,7 @@ const ExposureCalculator: React.FC = () => {
     ev: { min: -6, max: 16 },
     av: { min: 0, max: 10 },
     tv: { min: -3, max: 13 },
-    iso: { min: 0, max: 10 }
+    iso: { min: 0, max: 11 }
   });
 
   const [selectedParam1, setSelectedParam1] = useState<keyof ExposureValues>('av');
