@@ -7,6 +7,10 @@
   "description": "Interactive camera exposure calculator with EV, AV, TV, ISO parameters",
   "author": "nobuoJT",
   "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=10.17.1"
+  },
   "keywords": [
     "camera",
     "exposure",
