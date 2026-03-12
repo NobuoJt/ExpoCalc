@@ -3,10 +3,20 @@
   "private": true,
   "version": "1.0.4",
   "type": "module",
+  "packageManager": "pnpm@10.17.1",
   "description": "Interactive camera exposure calculator with EV, AV, TV, ISO parameters",
   "author": "nobuoJT",
   "license": "MIT",
-  "keywords": ["camera", "exposure", "calculator", "photography", "ev", "av", "tv", "iso"],
+  "keywords": [
+    "camera",
+    "exposure",
+    "calculator",
+    "photography",
+    "ev",
+    "av",
+    "tv",
+    "iso"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -14,20 +24,20 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
   },
   "devDependencies": {
-    "@eslint/js": "^9.30.1",
-    "@types/react": "^19.1.8",
-    "@types/react-dom": "^19.1.6",
-    "@vitejs/plugin-react": "^4.6.0",
-    "eslint": "^9.30.1",
+    "@eslint/js": "^9.39.4",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^4.7.0",
+    "eslint": "^9.39.4",
     "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.4.20",
-    "globals": "^16.3.0",
+    "eslint-plugin-react-refresh": "^0.4.26",
+    "globals": "^16.5.0",
     "typescript": "~5.8.3",
-    "typescript-eslint": "^8.35.1",
-    "vite": "^7.0.4"
+    "typescript-eslint": "^8.57.0",
+    "vite": "^7.3.1"
   }
 }

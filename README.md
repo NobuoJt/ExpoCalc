@@ -47,19 +47,19 @@ ExpoCalcは、カメラの露出に関するパラメータを計算するイン
 
 ### 必要な環境
 
-- Node.js (v16以上)
-- npm
+- Node.js (v20.19以上)
+- pnpm (v10以上)
 
 ### インストール
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### 開発サーバーの起動
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 ブラウザで <http://localhost:5173/> にアクセス
@@ -67,7 +67,7 @@ npm run dev
 ### ビルド
 
 ```bash
-npm run build
+pnpm build
 ```
 
 静的ファイルが `dist/` フォルダに生成されます。
@@ -75,16 +75,16 @@ npm run build
 ### プレビュー
 
 ```bash
-npm run preview
+pnpm preview
 ```
 
 ビルドされたファイルをローカルサーバーでプレビュー
 
 ## 技術スタック
 
-- **React 18** - UIライブラリ
+- **React 19** - UIライブラリ
 - **TypeScript** - 型安全性
-- **Vite 6** - ビルドツール
+- **Vite 7** - ビルドツール
 - **CSS** - スタイリング（レスポンシブ対応、Flexbox/Grid）
 - **カスタムファビコン** - 絞りマークのSVGアイコン
 
