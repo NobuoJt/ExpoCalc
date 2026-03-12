@@ -22,7 +22,7 @@ jobs:
           version: 10.17.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@39c4972e9c5c1f0b55810c23d549ea235bd27a32 # v4
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f2 # v4
         with:
           node-version: 22
           cache: pnpm
