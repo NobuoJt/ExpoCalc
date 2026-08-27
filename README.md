@@ -90,7 +90,7 @@ pnpm preview
 
 ## プロジェクト情報
 
-- **バージョン**: 1.0.4
+- **バージョン**: 1.0.5
 - **作成日**: 2025年7月17日
 - **作者**: nobuoJT
 - **ライセンス**: MIT License
@@ -172,5 +172,5 @@ MIT License
 
 ---
 
-**ExpoCalc v1.0.4** - Camera Exposure Calculator  
+**ExpoCalc v1.0.5** - Camera Exposure Calculator  
 © 2025 nobuoJT
