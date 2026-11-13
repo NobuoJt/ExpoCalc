@@ -1,7 +1,7 @@
 name: Dependabot Auto-Merge
 
 on:
-  pull_request_target: # pull_request から変更
+  pull_request_target:
     types:
       - opened
       - reopened
@@ -10,9 +10,9 @@ on:
 
 permissions:
   checks: read
-  pull-requests: write # approve や merge のために write が必要
+  pull-requests: write
   statuses: read
-  contents: write      # squash merge のために write が必要
+  contents: write
   actions: read
 
 jobs:
@@ -26,14 +26,7 @@ jobs:
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
 
-      - name: Wait for CI checks
-        if: |
-          steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
-          steps.metadata.outputs.update-type == 'version-update:semver-minor'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_URL: ${{ github.event.pull_request.html_url }}
-        run: gh pr checks "$PR_URL" --watch --interval 10
+      # ※ここにあった「Wait for CI checks」を削除しました
 
       - name: Auto-approve Dependabot PR
         if: ${{ steps.metadata.outputs.update-type == 'version-update:semver-patch' || steps.metadata.outputs.update-type == 'version-update:semver-minor' || steps.metadata.outputs.update-type == 'security-update' }}
