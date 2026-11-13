@@ -1,27 +1,30 @@
-name: Dependabot Auto Merge
+name: Dependabot Auto-Merge
 
 on:
-  pull_request_target:
+  pull_request_target: # pull_request から変更
     types:
       - opened
-      - synchronize
       - reopened
+      - synchronize
       - ready_for_review
 
 permissions:
-  contents: write
-  pull-requests: write
+  checks: read
+  pull-requests: write # approve や merge のために write が必要
+  statuses: read
+  contents: write      # squash merge のために write が必要
+  actions: read
 
 jobs:
   dependabot:
-    if: github.event.pull_request.user.login == 'dependabot[bot]'
     runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
     steps:
       - name: Fetch Dependabot metadata
         id: metadata
-        uses: dependabot/fetch-metadata@v3
+        uses: dependabot/fetch-metadata@v2
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Wait for CI checks
         if: |
@@ -32,20 +35,16 @@ jobs:
           PR_URL: ${{ github.event.pull_request.html_url }}
         run: gh pr checks "$PR_URL" --watch --interval 10
 
-      - name: Auto approve Dependabot PR
-        if: |
-          steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
-          steps.metadata.outputs.update-type == 'version-update:semver-minor'
+      - name: Auto-approve Dependabot PR
+        if: ${{ steps.metadata.outputs.update-type == 'version-update:semver-patch' || steps.metadata.outputs.update-type == 'version-update:semver-minor' || steps.metadata.outputs.update-type == 'security-update' }}
+        run: gh pr review --approve "$PR_URL"
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_URL: ${{ github.event.pull_request.html_url }}
-        run: gh pr review --approve "$PR_URL" --body "Auto-approved for safe Dependabot update"
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Enable auto-merge
-        if: |
-          steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
-          steps.metadata.outputs.update-type == 'version-update:semver-minor'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_URL: ${{ github.event.pull_request.html_url }}
+      - name: Enable auto-merge for Dependabot PRs
+        if: ${{ steps.metadata.outputs.update-type == 'version-update:semver-patch' || steps.metadata.outputs.update-type == 'version-update:semver-minor' || steps.metadata.outputs.update-type == 'security-update' }}
         run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
