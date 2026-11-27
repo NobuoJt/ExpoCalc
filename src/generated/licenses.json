@@ -1,0 +1,40 @@
+{
+  "MIT": [
+    {
+      "name": "react",
+      "versions": [
+        "19.3.1"
+      ],
+      "paths": [
+        "/home/nobuo/Projects/ExpoCalc/node_modules/.pnpm/react@19.3.1/node_modules/react"
+      ],
+      "license": "MIT",
+      "homepage": "https://react.dev/",
+      "description": "React is a JavaScript library for building user interfaces."
+    },
+    {
+      "name": "react-dom",
+      "versions": [
+        "19.3.1"
+      ],
+      "paths": [
+        "/home/nobuo/Projects/ExpoCalc/node_modules/.pnpm/react-dom@19.3.1_react@19.3.1/node_modules/react-dom"
+      ],
+      "license": "MIT",
+      "homepage": "https://react.dev/",
+      "description": "React package for working with the DOM."
+    },
+    {
+      "name": "scheduler",
+      "versions": [
+        "0.28.0"
+      ],
+      "paths": [
+        "/home/nobuo/Projects/ExpoCalc/node_modules/.pnpm/scheduler@0.28.0/node_modules/scheduler"
+      ],
+      "license": "MIT",
+      "homepage": "https://react.dev/",
+      "description": "Cooperative scheduler for the browser environment."
+    }
+  ]
+}

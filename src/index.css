@@ -1,11 +1,86 @@
+/*
+ * ExpoCalc - UI theme definitions
+ * All component colours are defined here as CSS variables.
+ * Themes: original (default) / material / digital / smarthr
+ * Color modes: light / dark (data-color-mode)
+ */
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+  /* Original light theme (ExpoCalc standard) */
+  --bg: #ffffff;
+  --text: #213547;
+  --link: #646cff;
+  --link-hover: #747bff;
+  --button-bg: #f9f9f9;
+  --button-text: #213547;
+  --heading: #333333;
+  --heading-2: #444444;
+  --heading-3: #555555;
+  --panel: #f8f9fa;
+  --panel-strong: #e9ecef;
+  --panel-strong-text: #495057;
+  --panel-strong-hover: #dee2e6;
+  --surface: #ffffff;
+  --surface-alt: #fafafa;
+  --surface-3: #f0f4f8;
+  --line: #dddddd;
+  --line-strong: #dee2e6;
+  --line-soft: #eeeeee;
+  --accent: #007acc;
+  --accent-strong: #005fa3;
+  --accent-2: #1976d2;
+  --accent-text: #1565c0;
+  --accent-soft: #e3f2fd;
+  --accent-soft-2: #bbdefb;
+  --accent-wash: #f0f8ff;
+  --accent-border: #d0d0d0;
+  --on-accent: #ffffff;
+  --value-bg: #f1f8e9;
+  --value-bg-2: #e8f5e8;
+  --value-bg-3: #f0f8f0;
+  --value-border: #d0e0d0;
+  --result-border: #4caf50;
+  --result-text: #2e7d32;
+  --table-exact-bg: #c8e6c9;
+  --table-fixed-bg: #e1f5fe;
+  --warn-bg: #fff3cd;
+  --warn-border: #ffeaa7;
+  --warn-text: #856404;
+  --danger: #f44336;
+  --danger-strong: #d32f2f;
+  --danger-text: #c62828;
+  --danger-soft: #ffebee;
+  --danger-soft-2: #ffcdd2;
+  --danger-border: #ff6b6b;
+  --danger-border-soft: #ffb3b3;
+  --danger-row-bg: #ffe8e8;
+  --danger-field-bg: #fff5f5;
+  --danger-cell-bg: #fff3f3;
+  --danger-pink-border: #f8bbd9;
+  --plus: #2196f3;
+  --plus-soft: #e3f2fd;
+  --plus-soft-2: #bbdefb;
+  --disabled-bg: #f5f5f5;
+  --disabled-bg-strong: #cccccc;
+  --disabled-text: #999999;
+  --faint: #bbbbbb;
+  --muted: #666666;
+  --subtle: #999999;
+  --output-bg: #fff9c4;
+  --output-border: #f9f2a1;
+  --output-hover: #fff3b3;
+  --shadow: rgba(0, 0, 0, 0.1);
+  --scrim: rgba(0, 0, 0, 0.45);
+
+  font-family: var(--font-family);
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color-scheme: light;
+  color: var(--text);
+  background-color: var(--bg);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -13,13 +88,497 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Original dark theme */
+:root[data-color-mode="dark"] {
+  color-scheme: dark;
+  --font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --bg: #242424;
+  --text: rgba(255, 255, 255, 0.87);
+  --link: #8a8dff;
+  --link-hover: #a5a7ff;
+  --button-bg: #1a1a1a;
+  --button-text: rgba(255, 255, 255, 0.87);
+  --heading: #e6e6e6;
+  --heading-2: #dcdcdc;
+  --heading-3: #cfcfcf;
+  --panel: #2a2a2a;
+  --panel-strong: #333333;
+  --panel-strong-text: #c8c8c8;
+  --panel-strong-hover: #3c3c3c;
+  --surface: #1f1f1f;
+  --surface-alt: #262626;
+  --surface-3: #222b33;
+  --line: #444444;
+  --line-strong: #4a4a4a;
+  --line-soft: #3a3a3a;
+  --accent: #4da3e0;
+  --accent-strong: #2b7cb8;
+  --accent-2: #1f6fb2;
+  --accent-text: #90caf9;
+  --accent-soft: #1b3a4d;
+  --accent-soft-2: #24506b;
+  --accent-wash: #20303c;
+  --accent-border: #4a5a66;
+  --on-accent: #ffffff;
+  --value-bg: #253024;
+  --value-bg-2: #20301f;
+  --value-bg-3: #223022;
+  --value-border: #3e523e;
+  --result-border: #66bb6a;
+  --result-text: #81c784;
+  --table-exact-bg: #1f4a2a;
+  --table-fixed-bg: #173a4a;
+  --warn-bg: #4a3a10;
+  --warn-border: #7a6420;
+  --warn-text: #e8c56a;
+  --danger: #ef5350;
+  --danger-strong: #e53935;
+  --danger-text: #ef9a9a;
+  --danger-soft: #3a1f22;
+  --danger-soft-2: #4a2528;
+  --danger-border: #ef5350;
+  --danger-border-soft: #7a3333;
+  --danger-row-bg: #3a2020;
+  --danger-field-bg: #3a2222;
+  --danger-cell-bg: #3a2222;
+  --danger-pink-border: #7a3a52;
+  --plus: #42a5f5;
+  --plus-soft: #1b3a4d;
+  --plus-soft-2: #24506b;
+  --disabled-bg: #2a2a2a;
+  --disabled-bg-strong: #3a3a3a;
+  --disabled-text: #777777;
+  --faint: #777777;
+  --muted: #aaaaaa;
+  --subtle: #888888;
+  --output-bg: #4a4010;
+  --output-border: #7a6a20;
+  --output-hover: #5a4d12;
+  --shadow: rgba(0, 0, 0, 0.5);
+  --scrim: rgba(0, 0, 0, 0.65);
+}
+
+/* Material Design 3 */
+:root[data-theme="material"]:not([data-color-mode="dark"]) {
+  color-scheme: light;
+  --font-family: 'Roboto', system-ui, 'Noto Sans JP', 'Hiragino Sans', sans-serif;
+  --bg: #fef7ff;
+  --text: #1d1b20;
+  --link: #6750a4;
+  --link-hover: #4f378b;
+  --button-bg: #f3edf7;
+  --button-text: #1d1b20;
+  --heading: #1d1b20;
+  --heading-2: #2b2930;
+  --heading-3: #49454f;
+  --panel: #f3edf7;
+  --panel-strong: #e8def8;
+  --panel-strong-text: #49454f;
+  --panel-strong-hover: #dcd0ee;
+  --surface: #ffffff;
+  --surface-alt: #f7f2fa;
+  --surface-3: #f3edf7;
+  --line: #cac4d0;
+  --line-strong: #b8b2bf;
+  --line-soft: #e7e0ec;
+  --accent: #6750a4;
+  --accent-strong: #4f378b;
+  --accent-2: #7f67be;
+  --accent-text: #4f378b;
+  --accent-soft: #eaddff;
+  --accent-soft-2: #d0bcff;
+  --accent-wash: #f3edf7;
+  --accent-border: #b8a9d9;
+  --on-accent: #ffffff;
+  --value-bg: #f3edf7;
+  --value-bg-2: #eaddff;
+  --value-bg-3: #e8def8;
+  --value-border: #cac4d0;
+  --result-border: #6750a4;
+  --result-text: #4f378b;
+  --table-exact-bg: #c8e6c9;
+  --table-fixed-bg: #eaddff;
+  --warn-bg: #ffefd6;
+  --warn-border: #e0b34a;
+  --warn-text: #6b4e00;
+  --danger: #b3261e;
+  --danger-strong: #8c1d18;
+  --danger-text: #b3261e;
+  --danger-soft: #f9dedc;
+  --danger-soft-2: #f2b8b5;
+  --danger-border: #b3261e;
+  --danger-border-soft: #e8a19c;
+  --danger-row-bg: #f9dedc;
+  --danger-field-bg: #fdf1f0;
+  --danger-cell-bg: #f9dedc;
+  --danger-pink-border: #e8b4c8;
+  --plus: #6750a4;
+  --plus-soft: #eaddff;
+  --plus-soft-2: #d0bcff;
+  --disabled-bg: #e7e0ec;
+  --disabled-bg-strong: #d5cfda;
+  --disabled-text: #79747e;
+  --faint: #938f99;
+  --muted: #49454f;
+  --subtle: #79747e;
+  --output-bg: #ffefd6;
+  --output-border: #e0b34a;
+  --output-hover: #ffe3ad;
+  --shadow: rgba(0, 0, 0, 0.15);
+}
+
+/* デジタル庁デザインシステム */
+:root[data-theme="digital"]:not([data-color-mode="dark"]) {
+  color-scheme: light;
+  --font-family: 'Noto Sans JP', 'Hiragino Sans', system-ui, sans-serif;
+  --bg: #ffffff;
+  --text: #1a1a1c;
+  --link: #0017c1;
+  --link-hover: #0031d8;
+  --button-bg: #f1f1f4;
+  --button-text: #1a1a1c;
+  --heading: #1a1a1c;
+  --heading-2: #333333;
+  --heading-3: #4b4b4f;
+  --panel: #f8f8fb;
+  --panel-strong: #e8e8ec;
+  --panel-strong-text: #1a1a1c;
+  --panel-strong-hover: #dcdce0;
+  --surface: #ffffff;
+  --surface-alt: #f8f8fb;
+  --surface-3: #f1f1f4;
+  --line: #d8d8db;
+  --line-strong: #c5c5c9;
+  --line-soft: #e8e8ec;
+  --accent: #0017c1;
+  --accent-strong: #0031d8;
+  --accent-2: #0031d8;
+  --accent-text: #0017c1;
+  --accent-soft: #e8f1fe;
+  --accent-soft-2: #c5d7fb;
+  --accent-wash: #f1f5fb;
+  --accent-border: #c5d7fb;
+  --on-accent: #ffffff;
+  --value-bg: #f1f5fb;
+  --value-bg-2: #e8f1fe;
+  --value-bg-3: #edf2fa;
+  --value-border: #c5d7fb;
+  --result-border: #197a4b;
+  --result-text: #197a4b;
+  --table-exact-bg: #c8e6c9;
+  --table-fixed-bg: #e8f1fe;
+  --warn-bg: #fff7e0;
+  --warn-border: #d2a400;
+  --warn-text: #6b5200;
+  --danger: #ce0000;
+  --danger-strong: #a80000;
+  --danger-text: #ce0000;
+  --danger-soft: #fdecec;
+  --danger-soft-2: #f8c9c9;
+  --danger-border: #ce0000;
+  --danger-border-soft: #f0b3b3;
+  --danger-row-bg: #fdecec;
+  --danger-field-bg: #fff5f5;
+  --danger-cell-bg: #fdecec;
+  --danger-pink-border: #e8b3c5;
+  --plus: #0017c1;
+  --plus-soft: #e8f1fe;
+  --plus-soft-2: #c5d7fb;
+  --disabled-bg: #f1f1f4;
+  --disabled-bg-strong: #dcdce0;
+  --disabled-text: #76767a;
+  --faint: #909094;
+  --muted: #626367;
+  --subtle: #76767a;
+  --output-bg: #fff7e0;
+  --output-border: #d2a400;
+  --output-hover: #ffefb8;
+  --shadow: rgba(0, 0, 0, 0.1);
+}
+
+/* smartHR */
+:root[data-theme="smarthr"]:not([data-color-mode="dark"]) {
+  color-scheme: light;
+  --font-family: 'Noto Sans JP', 'Hiragino Sans', system-ui, sans-serif;
+  --bg: #f8f7f6;
+  --text: #23221f;
+  --link: #0077c7;
+  --link-hover: #005f9e;
+  --button-bg: #ffffff;
+  --button-text: #23221f;
+  --heading: #23221f;
+  --heading-2: #3a3833;
+  --heading-3: #4f4c45;
+  --panel: #f2f1f0;
+  --panel-strong: #e7e5e3;
+  --panel-strong-text: #45423c;
+  --panel-strong-hover: #dcd9d6;
+  --surface: #ffffff;
+  --surface-alt: #faf9f8;
+  --surface-3: #f2f1f0;
+  --line: #d6d3d0;
+  --line-strong: #c4c0bc;
+  --line-soft: #e8e6e4;
+  --accent: #0077c7;
+  --accent-strong: #005f9e;
+  --accent-2: #00a9b2;
+  --accent-text: #005f9e;
+  --accent-soft: #e7f5fc;
+  --accent-soft-2: #ccebf3;
+  --accent-wash: #f2f9fc;
+  --accent-border: #a8d7e6;
+  --on-accent: #ffffff;
+  --value-bg: #f2f9f7;
+  --value-bg-2: #e7f7f5;
+  --value-bg-3: #edf7f5;
+  --value-border: #bfe3de;
+  --result-border: #0f7f85;
+  --result-text: #0f7f85;
+  --table-exact-bg: #c8e6c9;
+  --table-fixed-bg: #e7f5fc;
+  --warn-bg: #faf2d0;
+  --warn-border: #ffcc17;
+  --warn-text: #6b5200;
+  --danger: #e01e5a;
+  --danger-strong: #b8174a;
+  --danger-text: #b8174a;
+  --danger-soft: #fde8ee;
+  --danger-soft-2: #f8c2d0;
+  --danger-border: #e01e5a;
+  --danger-border-soft: #f2a5b3;
+  --danger-row-bg: #fde8ee;
+  --danger-field-bg: #fff4f7;
+  --danger-cell-bg: #fde8ee;
+  --danger-pink-border: #f0b3c7;
+  --plus: #0077c7;
+  --plus-soft: #e7f5fc;
+  --plus-soft-2: #ccebf3;
+  --disabled-bg: #f2f1f0;
+  --disabled-bg-strong: #dcd9d6;
+  --disabled-text: #8a867e;
+  --faint: #8a867e;
+  --muted: #706d65;
+  --subtle: #8a867e;
+  --output-bg: #faf2d0;
+  --output-border: #ffcc17;
+  --output-hover: #f5e6a8;
+  --shadow: rgba(3, 3, 2, 0.12);
+}
+
+/* Material Design 3 dark */
+:root[data-theme="material"][data-color-mode="dark"] {
+  color-scheme: dark;
+  --font-family: 'Roboto', system-ui, 'Noto Sans JP', 'Hiragino Sans', sans-serif;
+  --bg: #141218;
+  --text: #e6e0e9;
+  --link: #d0bcff;
+  --link-hover: #eaddff;
+  --button-bg: #2b2930;
+  --button-text: #e6e0e9;
+  --heading: #e6e0e9;
+  --heading-2: #d4cfd8;
+  --heading-3: #cac4d0;
+  --panel: #2b2930;
+  --panel-strong: #36343b;
+  --panel-strong-text: #e6e0e9;
+  --panel-strong-hover: #403e46;
+  --surface: #1d1b20;
+  --surface-alt: #211f26;
+  --surface-3: #211f26;
+  --line: #49454f;
+  --line-strong: #5a5660;
+  --line-soft: #36343b;
+  --accent: #d0bcff;
+  --accent-strong: #eaddff;
+  --accent-2: #b69df8;
+  --accent-text: #d0bcff;
+  --accent-soft: #4f378b;
+  --accent-soft-2: #6750a4;
+  --accent-wash: #2b2930;
+  --accent-border: #6750a4;
+  --on-accent: #381e72;
+  --value-bg: #211f26;
+  --value-bg-2: #2b2930;
+  --value-bg-3: #25232a;
+  --value-border: #49454f;
+  --result-border: #d0bcff;
+  --result-text: #d0bcff;
+  --table-exact-bg: #1f4a2a;
+  --table-fixed-bg: #26365e;
+  --warn-bg: #4a3a10;
+  --warn-border: #7a6420;
+  --warn-text: #e8c56a;
+  --danger: #f2b8b5;
+  --danger-strong: #ffb4ab;
+  --danger-text: #f2b8b5;
+  --danger-soft: #4a2422;
+  --danger-soft-2: #60302d;
+  --danger-border: #f2b8b5;
+  --danger-border-soft: #8c4a46;
+  --danger-row-bg: #3a2020;
+  --danger-field-bg: #3a2222;
+  --danger-cell-bg: #3a2222;
+  --danger-pink-border: #7a3a52;
+  --plus: #d0bcff;
+  --plus-soft: #4f378b;
+  --plus-soft-2: #6750a4;
+  --disabled-bg: #2b2930;
+  --disabled-bg-strong: #36343b;
+  --disabled-text: #79747e;
+  --faint: #79747e;
+  --muted: #cac4d0;
+  --subtle: #938f99;
+  --output-bg: #4a3a10;
+  --output-border: #7a6420;
+  --output-hover: #5a4d12;
+  --shadow: rgba(0, 0, 0, 0.5);
+}
+
+/* デジタル庁 dark */
+:root[data-theme="digital"][data-color-mode="dark"] {
+  color-scheme: dark;
+  --font-family: 'Noto Sans JP', 'Hiragino Sans', system-ui, sans-serif;
+  --bg: #1a1a1c;
+  --text: #f0f0f2;
+  --link: #94adfa;
+  --link-hover: #c5d7fb;
+  --button-bg: #2a2a2e;
+  --button-text: #f0f0f2;
+  --heading: #f0f0f2;
+  --heading-2: #dedee2;
+  --heading-3: #c8c8cd;
+  --panel: #2a2a2e;
+  --panel-strong: #38383c;
+  --panel-strong-text: #f0f0f2;
+  --panel-strong-hover: #444449;
+  --surface: #232326;
+  --surface-alt: #26262a;
+  --surface-3: #26262a;
+  --line: #4a4a4f;
+  --line-strong: #5c5c62;
+  --line-soft: #38383c;
+  --accent: #7096f8;
+  --accent-strong: #94adfa;
+  --accent-2: #7096f8;
+  --accent-text: #c5d7fb;
+  --accent-soft: #26365e;
+  --accent-soft-2: #334a7a;
+  --accent-wash: #222a3a;
+  --accent-border: #4a5f8a;
+  --on-accent: #00118f;
+  --value-bg: #232a36;
+  --value-bg-2: #263243;
+  --value-bg-3: #242c39;
+  --value-border: #3a4a63;
+  --result-border: #6fbf8f;
+  --result-text: #8fd3a8;
+  --table-exact-bg: #1f4a2a;
+  --table-fixed-bg: #26365e;
+  --warn-bg: #4a3a10;
+  --warn-border: #7a6420;
+  --warn-text: #e8c56a;
+  --danger: #ff8a8a;
+  --danger-strong: #ffb3b3;
+  --danger-text: #ff8a8a;
+  --danger-soft: #4a2422;
+  --danger-soft-2: #60302d;
+  --danger-border: #ff8a8a;
+  --danger-border-soft: #8c4a46;
+  --danger-row-bg: #3a2020;
+  --danger-field-bg: #3a2222;
+  --danger-cell-bg: #3a2222;
+  --danger-pink-border: #7a3a52;
+  --plus: #7096f8;
+  --plus-soft: #26365e;
+  --plus-soft-2: #334a7a;
+  --disabled-bg: #2a2a2e;
+  --disabled-bg-strong: #38383c;
+  --disabled-text: #94949a;
+  --faint: #94949a;
+  --muted: #b8b8bd;
+  --subtle: #94949a;
+  --output-bg: #4a3a10;
+  --output-border: #7a6420;
+  --output-hover: #5a4d12;
+  --shadow: rgba(0, 0, 0, 0.5);
+}
+
+/* smartHR dark */
+:root[data-theme="smarthr"][data-color-mode="dark"] {
+  color-scheme: dark;
+  --font-family: 'Noto Sans JP', 'Hiragino Sans', system-ui, sans-serif;
+  --bg: #1c1b1a;
+  --text: #f1efec;
+  --link: #7fd0f0;
+  --link-hover: #a8e4f5;
+  --button-bg: #2e2d2a;
+  --button-text: #f1efec;
+  --heading: #f1efec;
+  --heading-2: #dedbd5;
+  --heading-3: #c9c4bc;
+  --panel: #2e2d2a;
+  --panel-strong: #3a3833;
+  --panel-strong-text: #f1efec;
+  --panel-strong-hover: #46433d;
+  --surface: #262523;
+  --surface-alt: #292824;
+  --surface-3: #292824;
+  --line: #4a4742;
+  --line-strong: #5c5852;
+  --line-soft: #3a3833;
+  --accent: #4db8e8;
+  --accent-strong: #7fd0f0;
+  --accent-2: #4dd0d8;
+  --accent-text: #a8e4f5;
+  --accent-soft: #1f3a47;
+  --accent-soft-2: #2a4f5e;
+  --accent-wash: #203036;
+  --accent-border: #3a6577;
+  --on-accent: #06222e;
+  --value-bg: #24302e;
+  --value-bg-2: #1f3a37;
+  --value-bg-3: #22312f;
+  --value-border: #3a5652;
+  --result-border: #5fc9a0;
+  --result-text: #8fdcb8;
+  --table-exact-bg: #1f4a2a;
+  --table-fixed-bg: #1f3a47;
+  --warn-bg: #4a3a10;
+  --warn-border: #7a6420;
+  --warn-text: #e8c56a;
+  --danger: #ff8a9a;
+  --danger-strong: #ffb3bd;
+  --danger-text: #ff8a9a;
+  --danger-soft: #4a2428;
+  --danger-soft-2: #603037;
+  --danger-border: #ff8a9a;
+  --danger-border-soft: #8c4a50;
+  --danger-row-bg: #3a2024;
+  --danger-field-bg: #3a2226;
+  --danger-cell-bg: #3a2226;
+  --danger-pink-border: #7a3a4a;
+  --plus: #4db8e8;
+  --plus-soft: #1f3a47;
+  --plus-soft-2: #2a4f5e;
+  --disabled-bg: #2e2d2a;
+  --disabled-bg-strong: #3a3833;
+  --disabled-text: #99948c;
+  --faint: #99948c;
+  --muted: #c2beb8;
+  --subtle: #99948c;
+  --output-bg: #4a3a10;
+  --output-border: #7a6420;
+  --output-hover: #5a4d12;
+  --shadow: rgba(0, 0, 0, 0.5);
+}
+
 a {
   font-weight: 500;
-  color: #646cff;
+  color: var(--link);
   text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+  color: var(--link-hover);
 }
 
 body {
@@ -28,6 +587,8 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background-color: var(--bg);
+  color: var(--text);
 }
 
 h1 {
@@ -42,27 +603,15 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: var(--button-bg);
+  color: var(--button-text);
   cursor: pointer;
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: var(--link);
 }
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
 }

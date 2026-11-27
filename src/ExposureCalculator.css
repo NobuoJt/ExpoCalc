@@ -1,11 +1,11 @@
 /*
  * ExpoCalc - Camera Exposure Calculator
- * Version: 1.0.2
+ * Version: 1.0.5
  * Created: 2025-07-17
- * Author: nobuoJT
+ * Author: NobuoJt
  * Description: Interactive camera exposure calculator with EV, AV, TV, ISO parameters
  * Features: Single calculation, 1D table, Matrix table modes with responsive design
- * Copyright (c) 2025 nobuoJT
+ * Copyright (c) 2026 NobuoJt
  * License: MIT License
  */
 
@@ -13,7 +13,7 @@
   max-width: 1400px;
   margin: 0 auto;
   padding: 20px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family: var(--font-family);
   box-sizing: border-box;
   font-size: 16px; /* ベースフォントサイズを大きく */
 }
@@ -26,7 +26,7 @@
 
 .exposure-calculator h1 {
   text-align: center;
-  color: #333;
+  color: var(--heading);
   margin-bottom: 30px;
 }
 
@@ -54,7 +54,7 @@
 
 /* 表セクションの背景 */
 .table-section {
-  background: white;
+  background: var(--surface);
 }
 
 .controls-column {
@@ -64,22 +64,22 @@
 
 /* セクション共通スタイル */
 .section {
-  background: #f8f9fa;
+  background: var(--panel);
   padding: 20px;
   border-radius: 8px;
   margin-bottom: 20px;
 }
 
 .section h2 {
-  color: #444;
-  border-bottom: 2px solid #007acc;
+  color: var(--heading-2);
+  border-bottom: 2px solid var(--accent);
   padding-bottom: 5px;
   margin-bottom: 15px;
   margin-top: 0;
 }
 
 .section h3 {
-  color: #555;
+  color: var(--heading-3);
   margin-bottom: 10px;
   margin-top: 15px;
 }
@@ -106,9 +106,10 @@
 .step-config select {
   margin-left: 10px;
   padding: 8px 12px; /* 5px 10px → 8px 12px */
-  border: 1px solid #ddd;
+  border: 1px solid var(--line);
   border-radius: 4px;
-  background: white;
+  background: var(--surface);
+  color: var(--text);
   font-size: 16px; /* 追加 */
   min-width: 150px; /* 追加 */
 }
@@ -132,32 +133,34 @@
 .range-input input[type="number"] {
   width: 70px;
   padding: 5px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--line);
   border-radius: 4px;
+  background: var(--surface);
+  color: var(--text);
 }
 
 .range-input span {
-  color: #666;
+  color: var(--muted);
   font-size: 12px;
 }
 
 /* 値入力 */
 .value-inputs {
-  background: #f1f8e9;
+  background: var(--value-bg);
 }
 
 /* パラメータ選択エリア */
 .param-selection {
   margin-bottom: 20px;
   padding: 15px;
-  background: #e8f5e8;
+  background: var(--value-bg-2);
   border-radius: 6px;
 }
 
 .param-selection h3 {
   margin-top: 0;
   margin-bottom: 10px;
-  color: #555;
+  color: var(--heading-3);
 }
 
 .param-selection label {
@@ -174,16 +177,17 @@
 .param-selection select {
   margin-left: 10px;
   padding: 8px 12px; /* 5px 10px → 8px 12px */
-  border: 1px solid #ddd;
+  border: 1px solid var(--line);
   border-radius: 4px;
-  background: white;
+  background: var(--surface);
+  color: var(--text);
   font-size: 16px; /* 追加 */
   min-width: 180px; /* 追加 */
 }
 
 .param-selection.single-calc {
-  background: #fff3cd;
-  border: 1px solid #ffeaa7;
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-border);
 }
 
 .radio-group-horizontal {
@@ -208,7 +212,7 @@
 .param-note {
   margin-top: 10px;
   font-size: 12px;
-  color: #666;
+  color: var(--muted);
   font-style: italic;
 }
 
@@ -219,8 +223,8 @@
 }
 
 .parameter-row.output-param {
-  background: #fff9c4;
-  border: 1px solid #f9f2a1;
+  background: var(--output-bg);
+  border: 1px solid var(--output-border);
   border-radius: 6px;
   padding: 8px;
 }
@@ -233,22 +237,22 @@
 }
 
 .parameter-row.clickable:hover {
-  background: #f0f8ff;
-  border-color: #d0d0d0;
+  background: var(--accent-wash);
+  border-color: var(--accent-border);
 }
 
 .parameter-row.clickable.output-param:hover {
-  background: #fff3b3;
-  border-color: #f9f2a1;
+  background: var(--output-hover);
+  border-color: var(--output-border);
 }
 
 .click-instruction {
   margin: 10px 0;
   padding: 8px;
-  background: #e3f2fd;
+  background: var(--accent-soft);
   border-radius: 4px;
   font-size: 12px;
-  color: #1565c0;
+  color: var(--accent-text);
   text-align: center;
 }
 
@@ -324,22 +328,24 @@
 }
 
 .parameter-row.clickable .param-label:hover {
-  color: #007acc;
+  color: var(--accent);
   text-decoration: underline;
 }
 
 .value-input {
   width: calc(100% - 6px);
   padding: 14px 10px; /* 12px 8px → 14px 10px */
-  border: 1px solid #ddd;
+  border: 1px solid var(--line);
   border-radius: 4px;
+  background: var(--surface);
+  color: var(--text);
   font-size: 20px; /* 18px → 20px */
   text-align: center;
 }
 
 .value-input:disabled {
-  background: #f5f5f5;
-  color: #999;
+  background: var(--disabled-bg);
+  color: var(--subtle);
 }
 
 .strict-value {
@@ -351,24 +357,24 @@
   font-size: 16px; /* 14px → 16px */
   text-align: center;
   white-space: nowrap;
-  color: #bbb;
+  color: var(--faint);
   font-style: italic;
 }
 
 .common-value {
-  background: #f0f8f0;
+  background: var(--value-bg-3);
   padding: 10px; /* 8px → 10px */
-  border: 1px solid #d0e0d0;
+  border: 1px solid var(--value-border);
   border-radius: 3px;
   font-size: 18px; /* 16px → 18px */
   text-align: center;
-  color: #555;
+  color: var(--heading-3);
   width: 100%;
 }
 
 .common-value:disabled {
-  background: #f5f5f5;
-  color: #999;
+  background: var(--disabled-bg);
+  color: var(--subtle);
 }
 
 .step-buttons {
@@ -406,73 +412,73 @@
   border: 1px solid;
   min-width: 44px; /* 高解像度時は少し小さく */
   text-align: center;
-  background: white;
+  background: var(--surface);
 }
 
 /* マイナスボタン（赤系） */
 .step-button.minus {
-  border-color: #f44336;
-  color: #c62828;
-  background: #ffebee;
+  border-color: var(--danger);
+  color: var(--danger-text);
+  background: var(--danger-soft);
 }
 
 .step-button.minus:hover:not(:disabled) {
-  background: #ffcdd2;
+  background: var(--danger-soft-2);
 }
 
 .step-button.minus.full-stop {
-  background: #f44336;
-  color: white;
+  background: var(--danger);
+  color: var(--on-accent);
   font-weight: bold;
 }
 
 .step-button.minus.full-stop:hover:not(:disabled) {
-  background: #d32f2f;
+  background: var(--danger-strong);
 }
 
 /* プラスボタン（青系） */
 .step-button.plus {
-  border-color: #2196f3;
-  color: #1565c0;
-  background: #e3f2fd;
+  border-color: var(--plus);
+  color: var(--accent-text);
+  background: var(--accent-soft);
 }
 
 .step-button.plus:hover:not(:disabled) {
-  background: #bbdefb;
+  background: var(--plus-soft-2);
 }
 
 .step-button.plus.full-stop {
-  background: #2196f3;
-  color: white;
+  background: var(--plus);
+  color: var(--on-accent);
   font-weight: bold;
 }
 
 .step-button.plus.full-stop:hover:not(:disabled) {
-  background: #1976d2;
+  background: var(--accent-2);
 }
 
 .step-button:disabled {
-  background: #f5f5f5 !important;
-  color: #999 !important;
+  background: var(--disabled-bg) !important;
+  color: var(--subtle) !important;
   cursor: not-allowed;
-  border-color: #ddd !important;
+  border-color: var(--line) !important;
 }
 
 .ev-description {
   margin-top: 8px;
   padding: 8px;
-  background: #fff3cd;
-  border: 1px solid #ffeaa7;
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-border);
   border-radius: 4px;
   font-size: 13px;
-  color: #856404;
+  color: var(--warn-text);
 }
 
 /* 警告表示スタイル */
 .input-warning {
-  background: #fff3cd;
-  border: 1px solid #ffeaa7;
-  color: #856404;
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-border);
+  color: var(--warn-text);
   padding: 6px 8px;
   border-radius: 3px;
   font-size: 11px;
@@ -481,9 +487,9 @@
 
 /* 警告表示 */
 .warning {
-  background: #fff3cd;
-  border: 1px solid #ffeaa7;
-  color: #856404;
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-border);
+  color: var(--warn-text);
   padding: 8px;
   border-radius: 4px;
   font-size: 12px;
@@ -497,8 +503,8 @@
 }
 
 .calculate-button {
-  background: #007acc;
-  color: white;
+  background: var(--accent);
+  color: var(--on-accent);
   border: none;
   padding: 12px 20px;
   margin: 5px;
@@ -510,17 +516,17 @@
 }
 
 .calculate-button:hover {
-  background: #005fa3;
+  background: var(--accent-strong);
 }
 
 .calculate-button:disabled {
-  background: #ccc;
+  background: var(--disabled-bg-strong);
   cursor: not-allowed;
 }
 
 .calculation-buttons button {
-  background: #007acc;
-  color: white;
+  background: var(--accent);
+  color: var(--on-accent);
   border: none;
   padding: 12px 20px;
   margin: 5px;
@@ -532,11 +538,11 @@
 }
 
 .calculation-buttons button:hover {
-  background: #005fa3;
+  background: var(--accent-strong);
 }
 
 .calculation-buttons button:disabled {
-  background: #ccc;
+  background: var(--disabled-bg-strong);
   cursor: not-allowed;
 }
 
@@ -548,29 +554,29 @@
 .result-display {
   margin-top: 15px;
   padding: 15px;
-  background: #e8f5e8;
+  background: var(--value-bg-2);
   border-radius: 6px;
   font-size: 16px;
 }
 
 .table-section {
-  background: white;
+  background: var(--surface);
 }
 
 .matrix-info {
   margin-bottom: 15px;
   padding: 10px;
-  background: #f8f9fa;
+  background: var(--panel);
   border-radius: 4px;
   font-size: 13px;
-  color: #666;
+  color: var(--muted);
 }
 
 /* テーブル */
 .table-container {
-  background: white;
+  background: var(--surface);
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px var(--shadow);
   overflow: hidden;
   width: 100%;
   max-width: 100%;
@@ -591,17 +597,17 @@
 .table-container thead {
   position: sticky;
   top: 0;
-  background: #007acc;
+  background: var(--accent);
   z-index: 10;
 }
 
 .table-container th {
-  background: #007acc;
-  color: white;
+  background: var(--accent);
+  color: var(--on-accent);
   padding: 18px 14px; /* 15px 12px → 18px 14px */
   text-align: left;
   font-weight: 600;
-  border-right: 1px solid #005fa3;
+  border-right: 1px solid var(--accent-strong);
   white-space: nowrap;
   font-size: 18px; /* 16px → 18px */
 }
@@ -610,29 +616,29 @@
   position: sticky;
   left: 0;
   z-index: 11;
-  background: #1976d2;
-  color: white;
+  background: var(--accent-2);
+  color: var(--on-accent);
   font-style: italic;
 }
 
 /* マトリックス表用の追加CSSスタイル */
 .table-container td.invalid-cell {
-  background: #ffebee !important;
-  color: #999;
+  background: var(--danger-soft) !important;
+  color: var(--subtle);
   font-style: italic;
 }
 
 .table-container th.param-header {
-  background: #1976d2;
-  color: white;
+  background: var(--accent-2);
+  color: var(--on-accent);
   font-weight: bold;
   text-align: center;
 }
 
 .table-container td {
   padding: 14px; /* 12px → 14px */
-  border-bottom: 1px solid #eee;
-  border-right: 1px solid #eee;
+  border-bottom: 1px solid var(--line-soft);
+  border-right: 1px solid var(--line-soft);
   white-space: nowrap;
   font-size: 18px; /* 16px → 18px */
 }
@@ -640,42 +646,42 @@
 .table-container td:first-child {
   position: sticky;
   left: 0;
-  background: #f8f9fa;
+  background: var(--panel);
   font-weight: 500;
   z-index: 5;
 }
 
 .table-container tr:nth-child(even) td:not(:first-child) {
-  background: #f8f9fa;
+  background: var(--panel);
 }
 
 .table-container tr:hover td:not(:first-child) {
-  background: #e3f2fd;
+  background: var(--accent-soft);
 }
 
 .table-container td.highlighted {
-  background: #fff3cd !important;
+  background: var(--warn-bg) !important;
   font-weight: bold;
 }
 
 .table-container td.exact-match {
-  background: #c8e6c9 !important;
+  background: var(--table-exact-bg) !important;
   font-weight: bold;
 }
 
 .table-container td.fixed-param {
-  background: #e1f5fe !important;
+  background: var(--table-fixed-bg) !important;
   font-style: italic;
 }
 
 /* EV-明るさ目安表 */
 .ev-reference-table {
-  background: #f0f4f8;
+  background: var(--surface-3);
 }
 
 .ev-reference-toggle {
-  background: #007acc;
-  color: white;
+  background: var(--accent);
+  color: var(--on-accent);
   border: none;
   padding: 10px 15px;
   border-radius: 4px;
@@ -686,7 +692,7 @@
 }
 
 .ev-reference-toggle:hover {
-  background: #005fa3;
+  background: var(--accent-strong);
 }
 
 .ev-reference-content {
@@ -702,12 +708,12 @@
 .ev-reference-content th,
 .ev-reference-content td {
   padding: 6px 8px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--line);
   text-align: left;
 }
 
 .ev-reference-content th {
-  background: #e3f2fd;
+  background: var(--accent-soft);
   font-weight: 600;
 }
 
@@ -718,8 +724,8 @@
 }
 
 .history-item {
-  background: white;
-  border: 1px solid #ddd;
+  background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: 4px;
   padding: 10px;
   margin-bottom: 8px;
@@ -727,7 +733,7 @@
 }
 
 .history-item .timestamp {
-  color: #666;
+  color: var(--muted);
   font-size: 11px;
 }
 
@@ -738,14 +744,14 @@
 
 /* 折りたたみ可能な設定エリア */
 .collapsible-section {
-  background: #f8f9fa;
+  background: var(--panel);
   border-radius: 8px;
   margin-bottom: 20px;
   overflow: hidden;
 }
 
 .collapsible-header {
-  background: #e9ecef;
+  background: var(--panel-strong);
   border: none;
   padding: 15px 20px;
   cursor: pointer;
@@ -753,7 +759,7 @@
   text-align: left;
   font-weight: 600;
   font-size: 16px;
-  color: #495057;
+  color: var(--panel-strong-text);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -761,12 +767,12 @@
 }
 
 .collapsible-header:hover {
-  background: #dee2e6;
+  background: var(--line-strong);
 }
 
 .collapsible-content {
   padding: 20px;
-  border-top: 1px solid #dee2e6;
+  border-top: 1px solid var(--line-strong);
 }
 
 /* 範囲設定 */
@@ -786,16 +792,18 @@
 .range-input input[type="number"] {
   width: 70px;
   padding: 5px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--line);
   border-radius: 4px;
+  background: var(--surface);
+  color: var(--text);
 }
 
 .range-display {
-  background: #f0f8f0;
+  background: var(--value-bg-3);
   padding: 4px 8px;
   border-radius: 3px;
   font-size: 11px;
-  color: #555;
+  color: var(--heading-3);
   margin-top: 4px;
   flex-basis: 100%;
 }
@@ -806,12 +814,12 @@
 .output-display {
   width: calc(100% - 6px);
   padding: 0px;
-  border: 2px solid #4caf50;
+  border: 2px solid var(--result-border);
   border-radius: 4px;
   font-size: 14px;
   text-align: center;
-  background: #e8f5e8;
-  color: #2e7d32;
+  background: var(--value-bg-2);
+  color: var(--result-text);
   font-weight: bold;
   min-height: 32px;
   display: flex;
@@ -821,16 +829,16 @@
 
 /* テーブル内の範囲外値表示 */
 .out-of-range-cell {
-  background: #fff3f3 !important;
-  border: 1px solid #ffb3b3 !important;
-  color: #c62828;
+  background: var(--danger-cell-bg) !important;
+  border: 1px solid var(--danger-border-soft) !important;
+  color: var(--danger-text);
   font-weight: bold;
 }
 
 .range-warning-cell {
-  background: #ffebee;
-  border: 1px solid #f8bbd9;
-  color: #c62828;
+  background: var(--danger-soft);
+  border: 1px solid var(--danger-pink-border);
+  color: var(--danger-text);
   font-size: 9px;
   font-weight: bold;
   text-align: center;
@@ -841,7 +849,7 @@
 
 /* 統一表現値表示 */
 .unified-value {
-  color: #666;
+  color: var(--muted);
   font-size: 10px;
   font-family: monospace;
   font-style: italic;
@@ -858,7 +866,7 @@
 .toggle-detailed-values {
   background: none;
   border: none;
-  color: #007acc;
+  color: var(--accent);
   text-decoration: underline;
   cursor: pointer;
   font-size: 11px;
@@ -867,38 +875,38 @@
 }
 
 .toggle-detailed-values:hover {
-  background: #f0f8ff;
+  background: var(--accent-wash);
   border-radius: 3px;
 }
 
 /* 範囲外の値に対する特別な表示 */
 .parameter-row.out-of-range {
-  background: #ffe8e8;
-  border: 1px solid #ffb3b3;
+  background: var(--danger-row-bg);
+  border: 1px solid var(--danger-border-soft);
 }
 
 .parameter-row.out-of-range .value-input,
 .parameter-row.out-of-range .common-value {
-  border-color: #ff6b6b;
-  background: #fff5f5;
+  border-color: var(--danger-border);
+  background: var(--danger-field-bg);
 }
 
 .parameter-row.out-of-range .output-display {
-  border-color: #ff6b6b;
-  background: #fff5f5;
-  color: #c62828;
+  border-color: var(--danger-border);
+  background: var(--danger-field-bg);
+  color: var(--danger-text);
 }
 
 .input-warning.out-of-range {
-  background: #ffebee;
-  border-color: #f8bbd9;
-  color: #c62828;
+  background: var(--danger-soft);
+  border-color: var(--danger-pink-border);
+  color: var(--danger-text);
   font-weight: bold;
 }
 
 /* マトリックス表専用スタイル */
 .matrix-info-header h4 {
-  color: #007acc;
+  color: var(--accent);
   margin: 0 0 15px 0;
   font-size: 16px;
   font-weight: 600;
@@ -906,9 +914,9 @@
 }
 
 .matrix-table-container {
-  background: white;
+  background: var(--surface);
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px var(--shadow);
   overflow: auto;
   max-height: 70vh;
   width: 100%;
@@ -925,17 +933,17 @@
 .matrix-table thead {
   position: sticky;
   top: 0;
-  background: #007acc;
+  background: var(--accent);
   z-index: 10;
 }
 
 .matrix-table th {
-  background: #007acc;
-  color: white;
+  background: var(--accent);
+  color: var(--on-accent);
   padding: 10px 8px; /* 8px 6px → 10px 8px */
   text-align: center;
   font-weight: 600;
-  border-right: 1px solid #005fa3;
+  border-right: 1px solid var(--accent-strong);
   white-space: nowrap;
   font-size: 16px; /* 14px → 16px */
 }
@@ -944,8 +952,8 @@
   position: sticky;
   left: 0;
   z-index: 11;
-  background: #1976d2;
-  color: white;
+  background: var(--accent-2);
+  color: var(--on-accent);
   font-style: italic;
   text-align: center;
   min-width: 0px;
@@ -958,8 +966,8 @@
 .matrix-table td {
   padding: 8px 6px; /* 6px 4px → 8px 6px */
   text-align: center;
-  border-right: 1px solid #eee;
-  border-bottom: 1px solid #eee;
+  border-right: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--line-soft);
   white-space: nowrap;
   font-size: 16px; /* 14px → 16px */
 }
@@ -967,11 +975,11 @@
 .matrix-table td.row-header {
   position: sticky;
   left: 0;
-  background: #f8f9fa;
+  background: var(--panel);
   font-weight: 600;
-  color: #333;
+  color: var(--heading);
   z-index: 9;
-  border-right: 2px solid #007acc;
+  border-right: 2px solid var(--accent);
   min-width: 90px; /* 80px → 90px */
   max-width: 110px; /* 100px → 110px */
   font-size: 16px; /* 14px → 16px */
@@ -979,22 +987,22 @@
 }
 
 .matrix-table td.cell-value {
-  background: #fff;
-  color: #333;
+  background: var(--surface);
+  color: var(--heading);
   font-weight: 500;
 }
 
 .matrix-table td.invalid-cell {
-  background: #f5f5f5;
-  color: #ccc;
+  background: var(--disabled-bg);
+  color: var(--disabled-text);
 }
 
 .matrix-table tr:nth-child(even) td:not(.row-header) {
-  background: #fafafa;
+  background: var(--surface-alt);
 }
 
 .matrix-table tr:hover td:not(.row-header) {
-  background: #e3f2fd;
+  background: var(--accent-soft);
 }
 
 /* レスポンシブ対応 */
@@ -1264,9 +1272,9 @@
   margin-top: 40px;
   padding: 20px;
   text-align: center;
-  border-top: 1px solid #ddd;
-  background: #f8f9fa;
-  color: #666;
+  border-top: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--muted);
 }
 
 .footer-content p {
@@ -1276,5 +1284,231 @@
 
 .footer-content p:first-child {
   font-weight: 600;
-  color: #444;
+  color: var(--heading-2);
+}
+
+/* ヘッダーとナビゲーション */
+.app-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.app-header h1 {
+  margin: 0;
+}
+
+.app-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.app-nav button {
+  padding: 8px 16px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.app-nav button:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent-strong);
+  color: var(--accent-strong);
+}
+
+/* 設定: テーマ */
+.theme-config {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.theme-config h3 {
+  margin-top: 0;
+}
+
+.theme-config label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.theme-config select {
+  margin-left: 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 16px;
+  min-width: 180px;
+}
+
+.setting-note {
+  margin: 0 0 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* フッターの設定・ヘルプ導線 */
+.footer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.footer-link {
+  padding: 6px 14px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.footer-link:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+/* ヘルプダイアログ */
+.help-dialog {
+  width: min(720px, calc(100vw - 32px));
+  max-width: min(720px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  color: var(--text);
+  box-shadow: 0 20px 60px var(--shadow);
+  text-align: left;
+}
+
+.help-dialog::backdrop {
+  background: var(--scrim);
+}
+
+.help-dialog-body {
+  padding: 20px;
+  max-height: calc(100vh - 90px);
+  overflow-y: auto;
+}
+
+.help-dialog-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--accent);
+}
+
+.help-dialog-header h2 {
+  margin: 0;
+  color: var(--heading);
+  font-size: 1.3rem;
+}
+
+.help-close-button {
+  padding: 6px 14px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+}
+
+.help-close-button:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.help-section h3 {
+  margin: 18px 0 8px;
+  color: var(--heading-3);
+  font-size: 15px;
+}
+
+.help-section p {
+  margin: 6px 0;
+  font-size: 14px;
+}
+
+.help-section ul {
+  margin: 0;
+  padding-left: 1.4em;
+}
+
+.help-section li {
+  margin-bottom: 6px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.help-section code {
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  font-size: 0.9em;
+}
+
+.license-details {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.license-details summary {
+  color: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.license-list {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.license-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line-soft);
+  font-size: 13px;
+}
+
+.license-list li:last-child {
+  border-bottom: none;
+}
+
+.license-name {
+  margin-left: auto;
+  color: var(--muted);
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.license-note {
+  color: var(--muted);
+  font-size: 12px;
 }

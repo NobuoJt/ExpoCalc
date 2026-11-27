@@ -1,15 +1,15 @@
 /*
  * ExpoCalc - Camera Exposure Calculator
- * Version: 1.0.2
+ * Version: 1.0.5
  * Created: 2025-07-17
- * Author: nobuoJT
+ * Author: NobuoJt
  * Description: Interactive camera exposure calculator with EV, AV, TV, ISO parameters
  * Features: Single calculation, 1D table, Matrix table modes with responsive design
- * Copyright (c) 2025 nobuoJT
+ * Copyright (c) 2026 NobuoJt
  * License: MIT License
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { ExposureValues, StepConfig, RangeConfig } from './exposureUtils';
 import {
   calculateMissingValue,
@@ -33,12 +33,22 @@ import {
 } from './exposureUtils';
 import './ExposureCalculator.css';
 import version from '../package.json';
+import HelpDialog from './HelpDialog';
+import {
+  UI_THEMES,
+  UI_THEME_META,
+  applyTheme,
+  readStoredColorMode,
+  readStoredTheme,
+  saveTheme,
+} from './theme';
+import type { ColorMode, UiTheme } from './theme';
 
 // アプリケーション情報
 const APP_INFO = {
   name: 'ExpoCalc',
   version: version?.version,
-  author: 'nobuoJT'
+  author: 'NobuoJt'
 };
 
 type CalculationMode = 'single' | 'table1D' | 'matrix2D';
@@ -101,11 +111,29 @@ const ExposureCalculator: React.FC = () => {
   const [calculatedParam, setCalculatedParam] = useState<keyof ExposureValues>('ev');
   const [showEVTable, setShowEVTable] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const [showDetailedValues, setShowDetailedValues] = useState(false);
   const [showUnifiedValues, setShowUnifiedValues] = useState(false);
+  const [theme, setTheme] = useState<UiTheme>(readStoredTheme);
+  const [colorMode, setColorMode] = useState<ColorMode>(readStoredColorMode);
+  const settingsRef = useRef<HTMLDivElement>(null);
   const [inputWarnings, setInputWarnings] = useState<Record<keyof ExposureValues, string>>({
     ev: '', av: '', tv: '', iso: ''
   });
+
+  // 設定への導線: 折りたたみを開いて設定位置までスクロールする
+  const openSettings = () => {
+    setShowSettings(true);
+    window.requestAnimationFrame(() => {
+      settingsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  };
+
+  // UI テーマとカラーモードを document に反映し、選択を保存する
+  useEffect(() => {
+    applyTheme(theme, colorMode);
+    saveTheme(theme, colorMode);
+  }, [theme, colorMode]);
 
   // 固定パラメータの数を数える
   const fixedCount = Object.values(fixedParams).filter(Boolean).length;
@@ -327,7 +355,13 @@ const ExposureCalculator: React.FC = () => {
 
   return (
     <div className="exposure-calculator">
-      <h1>ExpoCalc<wbr /> - 露出計算機</h1>
+      <header className="app-header">
+        <h1>ExpoCalc<wbr /> - 露出計算機</h1>
+        <nav className="app-nav" aria-label="アプリケーション">
+          <button type="button" onClick={openSettings}>設定</button>
+          <button type="button" onClick={() => setShowHelp(true)}>ヘルプ</button>
+        </nav>
+      </header>
       
       <div className={`main-content ${mode === 'single' ? 'single-mode' : mode === 'matrix2D' ? 'matrix-mode' : ''}`}>
         {/* 左のカラム：コントロール */}
@@ -628,7 +662,7 @@ const ExposureCalculator: React.FC = () => {
           </div>
 
           {/* 設定（折りたたみ可能） */}
-          <div className="section collapsible-section">
+          <div className="section collapsible-section" ref={settingsRef}>
             <button 
               className="collapsible-header"
               onClick={() => setShowSettings(!showSettings)}
@@ -638,6 +672,37 @@ const ExposureCalculator: React.FC = () => {
             </button>
             {showSettings && (
               <div className="collapsible-content">
+                <div className="theme-config">
+                  <h3>外観</h3>
+                  <label>
+                    UIテーマ:
+                    <select
+                      value={theme}
+                      onChange={(e) => setTheme(e.target.value as UiTheme)}
+                    >
+                      {UI_THEMES.map((themeId) => (
+                        <option key={themeId} value={themeId}>
+                          {UI_THEME_META[themeId].label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <p className="setting-note">{UI_THEME_META[theme].description}</p>
+                  <label>
+                    カラーモード:
+                    <select
+                      value={colorMode}
+                      onChange={(e) => setColorMode(e.target.value as ColorMode)}
+                    >
+                      <option value="light">ライト</option>
+                      <option value="dark">ダーク</option>
+                    </select>
+                  </label>
+                  <p className="setting-note">
+                    初回は OS のカラースキームに合わせ、手動で選んだ設定を保存します。
+                  </p>
+                </div>
+
                 <div className="step-config">
                   <label>
                     段数:
@@ -867,11 +932,18 @@ const ExposureCalculator: React.FC = () => {
       
       {/* フッター */}
       <footer className="app-footer">
+        <div className="footer-actions">
+          <button type="button" className="footer-link" onClick={openSettings}>設定</button>
+          <button type="button" className="footer-link" onClick={() => setShowHelp(true)}>ヘルプ</button>
+        </div>
         <div className="footer-content">
           <p>{APP_INFO.name} v{APP_INFO.version} - Camera Exposure Calculator</p>
-          <p>© 2025 {APP_INFO.author} | MIT License</p>
+          <p>© 2026 {APP_INFO.author} | MIT License</p>
+          <p>Service Worker: なし</p>
         </div>
       </footer>
+
+      <HelpDialog open={showHelp} onClose={() => setShowHelp(false)} />
     </div>
   );
 };

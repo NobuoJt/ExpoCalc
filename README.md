@@ -35,6 +35,18 @@ ExpoCalcは、カメラの露出に関するパラメータを計算するイン
 - **値の範囲**: 各パラメータの最小値・最大値を調整可能
 - **詳細値表示**: 厳密表現値と統一表現値の切り替え
 - **EV-明るさ目安表**: 折りたたみ可能な参考表
+- **UIテーマ**: オリジナル / マテリアルデザイン / デジタル庁 / smartHR
+- **カラーモード**: ライト / ダーク（初回は OS 設定に追従、選択は localStorage に保存）
+
+### 表示・ヘルプ
+
+- ヘッダーとフッターに「設定」「ヘルプ」への導線があります。
+- ヘルプには本体バージョン、`Service Worker: なし`、著作権（© 2026 NobuoJt）、
+  本体ライセンス（MIT License）、使用 OSS ライブラリの一覧（折りたたみ）を表示します。
+- OSS 一覧は `pnpm licenses list --prod --json` から生成した `src/generated/licenses.json` を
+  そのまま表示しています。更新は `pnpm run licenses` で行います。
+- テーマは CSS 変数（`src/index.css`）で切り替え、選択時に `<meta name="theme-color">` と
+  `color-scheme` を更新します。
 
 ### デフォルト範囲
 
@@ -72,6 +84,14 @@ pnpm build
 
 静的ファイルが `dist/` フォルダに生成されます。
 
+### ライセンス一覧の生成
+
+```bash
+pnpm run licenses
+```
+
+`pnpm licenses list --prod --json` の結果を `src/generated/licenses.json` に出力します。
+
 ### プレビュー
 
 ```bash
@@ -90,9 +110,9 @@ pnpm preview
 
 ## プロジェクト情報
 
-- **バージョン**: 1.0.4
+- **バージョン**: 1.0.5
 - **作成日**: 2025年7月17日
-- **作者**: nobuoJT
+- **作者**: NobuoJt
 - **ライセンス**: MIT License
 
 ## GitHub Actions 設定
@@ -172,5 +192,6 @@ MIT License
 
 ---
 
-**ExpoCalc v1.0.4** - Camera Exposure Calculator  
-© 2025 nobuoJT
+**ExpoCalc v1.0.5** - Camera Exposure Calculator
+
+© 2026 NobuoJt

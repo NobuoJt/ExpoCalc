@@ -1,7 +1,7 @@
 {
   "name": "expocalc",
   "private": true,
-  "version": "1.0.4",
+  "version": "1.0.5",
   "type": "module",
   "packageManager": "pnpm@10.17.1",
   "description": "Interactive camera exposure calculator with EV, AV, TV, ISO parameters",
@@ -24,9 +24,11 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "typecheck": "tsc -b",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "node --test test/*.test.cjs"
+    "test": "node --test test/*.test.cjs",
+    "licenses": "pnpm licenses list --prod --json > src/generated/licenses.json"
   },
   "dependencies": {
     "react": "^19.3.1",

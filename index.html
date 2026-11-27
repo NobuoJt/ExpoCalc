@@ -5,6 +5,26 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="alternate icon" type="image/svg+xml" href="/aperture.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#ffffff" />
+    <script>
+      (function () {
+        try {
+          var themes = ['original', 'material', 'digital', 'smarthr'];
+          var theme = window.localStorage.getItem('expocalc.theme');
+          if (themes.indexOf(theme) === -1) theme = 'original';
+          var storedMode = window.localStorage.getItem('expocalc.color-mode');
+          var mode = storedMode === 'light' || storedMode === 'dark'
+            ? storedMode
+            : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          var root = document.documentElement;
+          root.dataset.theme = theme;
+          root.dataset.colorMode = mode;
+          root.style.colorScheme = mode;
+        } catch (e) {
+          /* localStorage が使えない場合は既定テーマで表示する */
+        }
+      })();
+    </script>
     <meta name="description" content="カメラの露出計算機 - EV、AV、TV、ISO値を使った露出計算" />
     <meta name="keywords" content="カメラ,露出,計算機,写真,EV,AV,TV,ISO,絞り,シャッター速度,感度" />
     <link rel="canonical" href="https://expocalc.nobuo.pgw.jp/" />
